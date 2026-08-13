@@ -565,15 +565,9 @@ public class AdminPanel extends JFrame {
 
 
         waitingButton.addActionListener(
-                e -> {
-
-                    WaitingListPanel waitingListPanel =
-                            new WaitingListPanel();
-
-                    waitingListPanel.setVisible(
-                            true
-                    );
-                }
+                e -> new WaitingListPanel(
+                        librarySystem.getWaitingListManager()
+                ).setVisible(true)
         );
 
 
@@ -855,11 +849,30 @@ public class AdminPanel extends JFrame {
     // REPORTS
     private void showReports() {
 
+
+        // CALCULATE REPORT DATA
         int totalBooks =
                 librarySystem
                         .getBookManager()
                         .getAllBooks()
                         .size();
+
+
+        int availableBooks = 0;
+
+        for (library.model.Book book :
+                librarySystem
+                        .getBookManager()
+                        .getAllBooks()) {
+
+            if (book.isAvailable()) {
+                availableBooks++;
+            }
+        }
+
+
+        int borrowedBooks =
+                totalBooks - availableBooks;
 
 
         int totalMembers =
@@ -874,41 +887,625 @@ public class AdminPanel extends JFrame {
                         .getActiveBorrowingCount();
 
 
-        int totalBorrowings =
+        int totalTransactions =
                 librarySystem
                         .getBorrowingManager()
                         .getTotalBorrowingCount();
 
 
-        int returnedBooks =
+        int returnedTransactions =
                 librarySystem
                         .getBorrowingManager()
                         .getReturnedBorrowingCount();
 
 
-        String report =
-                "SMART LIBRARY REPORT\n\n"
-                        + "Total Books: "
+        overdue.OverdueManager overdueManager =
+                new overdue.OverdueManager(
+                        librarySystem.getBorrowingManager()
+                );
+
+
+        int overdueBooks =
+                overdueManager.getOverdueCount();
+
+
+
+
+        // REPORT WINDOW
+        JFrame reportFrame =
+                new JFrame(
+                        "Smart Library - Library Reports"
+                );
+
+
+        reportFrame.setDefaultCloseOperation(
+                JFrame.DISPOSE_ON_CLOSE
+        );
+
+
+        reportFrame.setExtendedState(
+                JFrame.MAXIMIZED_BOTH
+        );
+
+
+        reportFrame.setMinimumSize(
+                new Dimension(
+                        1000,
+                        650
+                )
+        );
+
+
+        JPanel mainPanel =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+
+        mainPanel.setBackground(
+                BACKGROUND
+        );
+
+        JPanel headerPanel =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+
+        headerPanel.setBackground(
+                HEADER_COLOR
+        );
+
+
+        headerPanel.setBorder(
+                new EmptyBorder(
+                        22,
+                        35,
+                        22,
+                        35
+                )
+        );
+
+
+        JPanel headerText =
+                new JPanel();
+
+
+        headerText.setOpaque(
+                false
+        );
+
+
+        headerText.setLayout(
+                new BoxLayout(
+                        headerText,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+
+        JLabel title =
+                new JLabel(
+                        "Library Reports"
+                );
+
+
+        title.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        28
+                )
+        );
+
+
+        title.setForeground(
+                Color.WHITE
+        );
+
+
+        JLabel subtitle =
+                new JLabel(
+                        "System statistics and library performance overview"
+                );
+
+
+        subtitle.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        14
+                )
+        );
+
+
+        subtitle.setForeground(
+                new Color(
+                        209,
+                        213,
+                        219
+                )
+        );
+
+
+        headerText.add(
+                title
+        );
+
+
+        headerText.add(
+                Box.createVerticalStrut(4)
+        );
+
+
+        headerText.add(
+                subtitle
+        );
+
+
+        headerPanel.add(
+                headerText,
+                BorderLayout.WEST
+        );
+
+
+        mainPanel.add(
+                headerPanel,
+                BorderLayout.NORTH
+        );
+
+        JPanel contentPanel =
+                new JPanel();
+
+
+        contentPanel.setLayout(
+                new BoxLayout(
+                        contentPanel,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+
+        contentPanel.setBackground(
+                BACKGROUND
+        );
+
+
+        contentPanel.setBorder(
+                new EmptyBorder(
+                        25,
+                        35,
+                        25,
+                        35
+                )
+        );
+
+        // BOOK REPORTS
+        JLabel bookTitle =
+                createReportSectionTitle(
+                        "Book Statistics"
+                );
+
+
+        contentPanel.add(
+                bookTitle
+        );
+
+
+        contentPanel.add(
+                Box.createVerticalStrut(12)
+        );
+
+
+        JPanel bookStats =
+                new JPanel(
+                        new GridLayout(
+                                1,
+                                3,
+                                15,
+                                0
+                        )
+                );
+
+
+        bookStats.setOpaque(
+                false
+        );
+
+
+        bookStats.setMaximumSize(
+                new Dimension(
+                        Integer.MAX_VALUE,
+                        105
+                )
+        );
+
+
+        bookStats.add(
+                createReportCard(
+                        "Total Books",
+                        totalBooks
+                )
+        );
+
+
+        bookStats.add(
+                createReportCard(
+                        "Available Books",
+                        availableBooks
+                )
+        );
+
+
+        bookStats.add(
+                createReportCard(
+                        "Borrowed Books",
+                        borrowedBooks
+                )
+        );
+
+        contentPanel.add(
+                bookStats
+        );
+
+
+        contentPanel.add(
+                Box.createVerticalStrut(28)
+        );
+
+
+        // MEMBER / BORROWING REPORTS
+        JLabel transactionTitle =
+                createReportSectionTitle(
+                        "Member & Borrowing Statistics"
+                );
+
+
+        contentPanel.add(
+                transactionTitle
+        );
+
+
+        contentPanel.add(
+                Box.createVerticalStrut(12)
+        );
+
+
+        JPanel transactionStats =
+                new JPanel(
+                        new GridLayout(
+                                2,
+                                3,
+                                15,
+                                15
+                        )
+                );
+
+
+        transactionStats.setOpaque(
+                false
+        );
+
+
+        transactionStats.setMaximumSize(
+                new Dimension(
+                        Integer.MAX_VALUE,
+                        220
+                )
+        );
+
+
+        transactionStats.add(
+                createReportCard(
+                        "Total Members",
+                        totalMembers
+                )
+        );
+
+
+        transactionStats.add(
+                createReportCard(
+                        "Active Borrowings",
+                        activeBorrowings
+                )
+        );
+
+
+        transactionStats.add(
+                createReportCard(
+                        "Overdue Books",
+                        overdueBooks
+                )
+        );
+
+
+        transactionStats.add(
+                createReportCard(
+                        "Total Transactions",
+                        totalTransactions
+                )
+        );
+
+
+        transactionStats.add(
+                createReportCard(
+                        "Returned Transactions",
+                        returnedTransactions
+                )
+        );
+
+
+        transactionStats.add(
+                createReportCard(
+                        "Currently Borrowed",
+                        activeBorrowings
+                )
+        );
+
+
+        contentPanel.add(
+                transactionStats
+        );
+
+
+        contentPanel.add(
+                Box.createVerticalStrut(28)
+        );
+
+        // SUMMARY
+        JLabel summaryTitle =
+                createReportSectionTitle(
+                        "System Summary"
+                );
+
+
+        contentPanel.add(
+                summaryTitle
+        );
+
+
+        contentPanel.add(
+                Box.createVerticalStrut(12)
+        );
+
+
+        JPanel summaryCard =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+
+        summaryCard.setBackground(
+                CARD_COLOR
+        );
+
+
+        summaryCard.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER_COLOR
+                        ),
+                        new EmptyBorder(
+                                18,
+                                20,
+                                18,
+                                20
+                        )
+                )
+        );
+
+
+        JTextArea summaryArea =
+                new JTextArea();
+
+
+        summaryArea.setEditable(
+                false
+        );
+
+
+        summaryArea.setOpaque(
+                false
+        );
+
+
+        summaryArea.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        14
+                )
+        );
+
+
+        summaryArea.setForeground(
+                TEXT_COLOR
+        );
+
+
+        summaryArea.setText(
+                "Library currently contains "
                         + totalBooks
-                        + "\n"
-                        + "Total Members: "
+                        + " book(s), with "
+                        + availableBooks
+                        + " available and "
+                        + borrowedBooks
+                        + " currently unavailable.\n\n"
+
+                        + "Registered Members: "
                         + totalMembers
                         + "\n"
+
                         + "Active Borrowings: "
                         + activeBorrowings
                         + "\n"
-                        + "Total Borrowing Transactions: "
-                        + totalBorrowings
-                        + "\n"
+
                         + "Returned Transactions: "
-                        + returnedBooks;
+                        + returnedTransactions
+                        + "\n"
 
+                        + "Overdue Books: "
+                        + overdueBooks
 
-        JOptionPane.showMessageDialog(
-                this,
-                report,
-                "Library Reports",
-                JOptionPane.INFORMATION_MESSAGE
         );
+
+
+        summaryCard.add(
+                summaryArea,
+                BorderLayout.CENTER
+        );
+
+
+        contentPanel.add(
+                summaryCard
+        );
+
+
+        contentPanel.add(
+                Box.createVerticalGlue()
+        );
+
+
+        mainPanel.add(
+                contentPanel,
+                BorderLayout.CENTER
+        );
+
+
+        reportFrame.setContentPane(
+                mainPanel
+        );
+
+
+        reportFrame.setVisible(
+                true
+        );
+    }
+    private JLabel createReportSectionTitle(
+            String text
+    ) {
+
+        JLabel label =
+                new JLabel(
+                        text
+                );
+
+
+        label.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        20
+                )
+        );
+
+
+        label.setForeground(
+                TEXT_COLOR
+        );
+
+
+        label.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+
+        return label;
+    }
+
+
+    private JPanel createReportCard(
+            String title,
+            int value
+    ) {
+
+        JPanel card =
+                new JPanel();
+
+
+        card.setLayout(
+                new BoxLayout(
+                        card,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+
+        card.setBackground(
+                CARD_COLOR
+        );
+
+
+        card.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER_COLOR
+                        ),
+                        new EmptyBorder(
+                                15,
+                                18,
+                                15,
+                                18
+                        )
+                )
+        );
+
+
+        JLabel titleLabel =
+                new JLabel(
+                        title
+                );
+
+
+        titleLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+
+        titleLabel.setForeground(
+                SUBTEXT_COLOR
+        );
+
+
+        JLabel valueLabel =
+                new JLabel(
+                        String.valueOf(value)
+                );
+
+
+        valueLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        27
+                )
+        );
+
+
+        valueLabel.setForeground(
+                TEXT_COLOR
+        );
+
+
+        card.add(
+                titleLabel
+        );
+
+
+        card.add(
+                Box.createVerticalStrut(6)
+        );
+
+
+        card.add(
+                valueLabel
+        );
+
+
+        return card;
     }
 }

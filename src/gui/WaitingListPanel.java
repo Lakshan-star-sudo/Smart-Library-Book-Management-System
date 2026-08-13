@@ -4,497 +4,1407 @@ import waitinglist.WaitingListManager;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.basic.BasicButtonUI;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 
 public class WaitingListPanel extends JFrame {
 
-    private final Color BACKGROUND = new Color(245, 247, 250);
-    private final Color CARD_COLOR = Color.WHITE;
-    private final Color TEXT_COLOR = new Color(35, 45, 55);
-    private final Color SUBTEXT_COLOR = new Color(100, 110, 120);
-    private final Color BUTTON_COLOR = new Color(45, 95, 160);
 
-    private JTextArea resultArea;
+    private static final Color BACKGROUND =
+            new Color(245, 247, 250);
+
+    private static final Color HEADER_COLOR =
+            new Color(31, 41, 55);
+
+    private static final Color CARD_COLOR =
+            Color.WHITE;
+
+    private static final Color TEXT_COLOR =
+            new Color(31, 41, 55);
+
+    private static final Color SUBTEXT_COLOR =
+            new Color(107, 114, 128);
+
+    private static final Color BORDER_COLOR =
+            new Color(229, 231, 235);
+
+    private static final Color PRIMARY_COLOR =
+            new Color(37, 99, 235);
+
+    private static final Color SUCCESS_COLOR =
+            new Color(22, 163, 74);
+
+    private static final Color DANGER_COLOR =
+            new Color(220, 38, 38);
+
+    private static final Color SECONDARY_COLOR =
+            new Color(243, 244, 246);
+
+
+    private final WaitingListManager manager;
+
+    private final Integer loggedInMemberId;
+
+    private final boolean customerMode;
+
+
     private JTextField bookIdField;
+
     private JTextField memberIdField;
 
-    private WaitingListManager manager;
+    private DefaultTableModel tableModel;
 
-    public WaitingListPanel() {
+    private JTable waitingTable;
 
-        setTitle("Waiting List Management");
-        setSize(700, 620);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setResizable(false);
+    private JLabel queueCountLabel;
 
-        manager = new WaitingListManager();
+    private JLabel nextMemberLabel;
 
-        JPanel mainPanel =
-                new JPanel(new BorderLayout(20, 20));
+    private JLabel selectedBookLabel;
 
-        mainPanel.setBackground(BACKGROUND);
+    private JLabel statusLabel;
 
-        mainPanel.setBorder(
-                new EmptyBorder(30, 40, 30, 40)
+
+    public WaitingListPanel(
+            WaitingListManager manager
+    ) {
+
+        this.manager = manager;
+
+        this.loggedInMemberId = null;
+
+        this.customerMode = false;
+
+        initializeWindow();
+    }
+
+
+    public WaitingListPanel(
+            WaitingListManager manager,
+            int loggedInMemberId
+    ) {
+
+        this.manager = manager;
+
+        this.loggedInMemberId =
+                loggedInMemberId;
+
+        this.customerMode = true;
+
+        initializeWindow();
+    }
+
+
+    private void initializeWindow() {
+
+        setTitle(
+                customerMode
+                        ? "Smart Library - My Waiting List"
+                        : "Smart Library - Waiting List Management"
         );
 
-        // ================= HEADER =================
+        setDefaultCloseOperation(
+                JFrame.DISPOSE_ON_CLOSE
+        );
 
-        JPanel headerPanel = new JPanel();
+        setExtendedState(
+                JFrame.MAXIMIZED_BOTH
+        );
 
-        headerPanel.setBackground(BACKGROUND);
+        setMinimumSize(
+                new Dimension(
+                        1000,
+                        650
+                )
+        );
 
-        headerPanel.setLayout(
+        createUI();
+    }
+
+
+    private void createUI() {
+
+        JPanel root =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        root.setBackground(
+                BACKGROUND
+        );
+
+
+        JPanel header =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        header.setBackground(
+                HEADER_COLOR
+        );
+
+        header.setBorder(
+                new EmptyBorder(
+                        22,
+                        35,
+                        22,
+                        35
+                )
+        );
+
+
+        JPanel headerText =
+                new JPanel();
+
+        headerText.setOpaque(
+                false
+        );
+
+        headerText.setLayout(
                 new BoxLayout(
-                        headerPanel,
+                        headerText,
                         BoxLayout.Y_AXIS
                 )
         );
 
-        JLabel titleLabel =
-                new JLabel("WAITING LIST");
 
-        titleLabel.setFont(
+        JLabel title =
+                new JLabel(
+                        customerMode
+                                ? "My Waiting List"
+                                : "Waiting List Management"
+                );
+
+        title.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.BOLD,
-                        28
+                        29
                 )
         );
 
-        titleLabel.setForeground(TEXT_COLOR);
-
-        titleLabel.setAlignmentX(
-                Component.CENTER_ALIGNMENT
+        title.setForeground(
+                Color.WHITE
         );
 
-        JLabel subtitleLabel =
+
+        JLabel subtitle =
                 new JLabel(
-                        "Manage members waiting for unavailable books"
+                        customerMode
+                                ? "Manage books you are currently waiting for"
+                                : "Manage members waiting for unavailable books"
                 );
 
-        subtitleLabel.setFont(
+        subtitle.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.PLAIN,
                         14
                 )
         );
 
-        subtitleLabel.setForeground(
-                SUBTEXT_COLOR
+        subtitle.setForeground(
+                new Color(
+                        209,
+                        213,
+                        219
+                )
         );
 
-        subtitleLabel.setAlignmentX(
-                Component.CENTER_ALIGNMENT
+
+        headerText.add(
+                title
         );
 
-        headerPanel.add(titleLabel);
-
-        headerPanel.add(
-                Box.createVerticalStrut(6)
+        headerText.add(
+                Box.createVerticalStrut(4)
         );
 
-        headerPanel.add(subtitleLabel);
+        headerText.add(
+                subtitle
+        );
 
-        mainPanel.add(
-                headerPanel,
+
+        JLabel moduleBadge =
+                new JLabel(
+                        customerMode
+                                ? "MEMBER "
+                                  + loggedInMemberId
+                                : "ADMIN MODULE"
+                );
+
+        moduleBadge.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        13
+                )
+        );
+
+        moduleBadge.setForeground(
+                Color.WHITE
+        );
+
+
+        header.add(
+                headerText,
+                BorderLayout.WEST
+        );
+
+        header.add(
+                moduleBadge,
+                BorderLayout.EAST
+        );
+
+
+        root.add(
+                header,
                 BorderLayout.NORTH
         );
 
-        // ================= INPUT CARD =================
 
-        JPanel inputPanel =
-                new JPanel();
 
-        inputPanel.setLayout(
+        JPanel content =
+                new JPanel(
+                        new BorderLayout(
+                                20,
+                                20
+                        )
+                );
+
+        content.setBackground(
+                BACKGROUND
+        );
+
+        content.setBorder(
+                new EmptyBorder(
+                        25,
+                        35,
+                        20,
+                        35
+                )
+        );
+
+
+        JPanel topSection =
+                new JPanel(
+                        new BorderLayout(
+                                20,
+                                0
+                        )
+                );
+
+        topSection.setOpaque(
+                false
+        );
+
+        JPanel managementCard =
+                createCard();
+
+        managementCard.setLayout(
                 new BoxLayout(
-                        inputPanel,
+                        managementCard,
                         BoxLayout.Y_AXIS
                 )
         );
 
-        inputPanel.setBackground(
-                CARD_COLOR
-        );
 
-        inputPanel.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                                new Color(225, 230, 235)
-                        ),
-                        new EmptyBorder(
-                                20, 30, 20, 30
-                        )
+        JLabel managementTitle =
+                new JLabel(
+                        customerMode
+                                ? "Waiting List Request"
+                                : "Manage Waiting List"
+                );
+
+        managementTitle.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        19
                 )
         );
 
-        // Book ID
+        managementTitle.setForeground(
+                TEXT_COLOR
+        );
+
+        managementTitle.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+
+        JLabel managementSubtitle =
+                new JLabel(
+                        customerMode
+                                ? "Enter a Book ID to join or check your queue position"
+                                : "Enter a Book ID and Member ID to manage the queue"
+                );
+
+        managementSubtitle.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        managementSubtitle.setForeground(
+                SUBTEXT_COLOR
+        );
+
+        managementSubtitle.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+
+        managementCard.add(
+                managementTitle
+        );
+
+        managementCard.add(
+                Box.createVerticalStrut(4)
+        );
+
+        managementCard.add(
+                managementSubtitle
+        );
+
+        managementCard.add(
+                Box.createVerticalStrut(18)
+        );
+
+
+        JPanel formPanel =
+                new JPanel(
+                        new GridLayout(
+                                2,
+                                2,
+                                12,
+                                10
+                        )
+                );
+
+        formPanel.setOpaque(
+                false
+        );
+
+        formPanel.setMaximumSize(
+                new Dimension(
+                        Integer.MAX_VALUE,
+                        95
+                )
+        );
+
+        formPanel.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
 
         JLabel bookLabel =
-                new JLabel("Book ID");
+                createFieldLabel(
+                        "Book ID"
+                );
 
-        bookLabel.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        14
-                )
-        );
-
-        bookLabel.setForeground(TEXT_COLOR);
-
-        bookLabel.setAlignmentX(
-                Component.CENTER_ALIGNMENT
-        );
-
-        inputPanel.add(bookLabel);
-
-        inputPanel.add(
-                Box.createVerticalStrut(6)
-        );
 
         bookIdField =
-                new JTextField();
+                createTextField();
 
-        bookIdField.setMaximumSize(
-                new Dimension(300, 35)
-        );
-
-        bookIdField.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.PLAIN,
-                        14
-                )
-        );
-
-        inputPanel.add(bookIdField);
-
-        inputPanel.add(
-                Box.createVerticalStrut(12)
-        );
-
-        // Member ID
 
         JLabel memberLabel =
-                new JLabel("Member ID");
+                createFieldLabel(
+                        "Member ID"
+                );
 
-        memberLabel.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        14
-                )
-        );
-
-        memberLabel.setForeground(TEXT_COLOR);
-
-        memberLabel.setAlignmentX(
-                Component.CENTER_ALIGNMENT
-        );
-
-        inputPanel.add(memberLabel);
-
-        inputPanel.add(
-                Box.createVerticalStrut(6)
-        );
 
         memberIdField =
-                new JTextField();
+                createTextField();
 
-        memberIdField.setMaximumSize(
-                new Dimension(300, 35)
+
+        if (customerMode) {
+
+            memberIdField.setText(
+                    String.valueOf(
+                            loggedInMemberId
+                    )
+            );
+
+            memberIdField.setEditable(
+                    false
+            );
+        }
+
+
+        formPanel.add(
+                bookLabel
         );
 
-        memberIdField.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.PLAIN,
-                        14
-                )
+        formPanel.add(
+                bookIdField
         );
 
-        inputPanel.add(memberIdField);
+        formPanel.add(
+                memberLabel
+        );
 
-        inputPanel.add(
+        formPanel.add(
+                memberIdField
+        );
+
+
+        managementCard.add(
+                formPanel
+        );
+
+        managementCard.add(
                 Box.createVerticalStrut(15)
         );
 
-        // Buttons
 
         JPanel buttonPanel =
-                new JPanel();
+                new JPanel(
+                        new GridLayout(
+                                1,
+                                3,
+                                10,
+                                0
+                        )
+                );
 
-        buttonPanel.setBackground(
-                CARD_COLOR
+        buttonPanel.setOpaque(
+                false
         );
 
+        buttonPanel.setMaximumSize(
+                new Dimension(
+                        Integer.MAX_VALUE,
+                        42
+                )
+        );
+
+        buttonPanel.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+
         JButton addButton =
-                createButton("ADD TO WAITING LIST");
+                createButton(
+                        customerMode
+                                ? "JOIN WAITING LIST"
+                                : "ADD TO WAITING LIST",
+                        PRIMARY_COLOR,
+                        Color.WHITE
+                );
+
 
         JButton viewButton =
-                createButton("VIEW WAITING LIST");
+                createButton(
+                        customerMode
+                                ? "VIEW MY POSITION"
+                                : "VIEW QUEUE",
+                        SUCCESS_COLOR,
+                        Color.WHITE
+                );
+
 
         JButton removeButton =
-                createButton("REMOVE MEMBER");
+                createButton(
+                        customerMode
+                                ? "LEAVE WAITING LIST"
+                                : "REMOVE MEMBER",
+                        DANGER_COLOR,
+                        Color.WHITE
+                );
 
-        buttonPanel.add(addButton);
 
-        buttonPanel.add(viewButton);
+        buttonPanel.add(
+                addButton
+        );
 
-        buttonPanel.add(removeButton);
+        buttonPanel.add(
+                viewButton
+        );
 
-        inputPanel.add(buttonPanel);
+        buttonPanel.add(
+                removeButton
+        );
 
-        // ================= RESULT AREA =================
 
-        resultArea =
-                new JTextArea();
+        managementCard.add(
+                buttonPanel
+        );
 
-        resultArea.setEditable(false);
 
-        resultArea.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.PLAIN,
+        topSection.add(
+                managementCard,
+                BorderLayout.CENTER
+        );
+
+
+        JPanel summaryPanel =
+                new JPanel(
+                        new GridLayout(
+                                3,
+                                1,
+                                0,
+                                10
+                        )
+                );
+
+        summaryPanel.setOpaque(
+                false
+        );
+
+        summaryPanel.setPreferredSize(
+                new Dimension(
+                        280,
+                        245
+                )
+        );
+
+
+        queueCountLabel =
+                createValueLabel(
+                        "0"
+                );
+
+
+        nextMemberLabel =
+                createValueLabel(
+                        "-"
+                );
+
+
+        selectedBookLabel =
+                createValueLabel(
+                        "-"
+                );
+
+
+        summaryPanel.add(
+                createStatCard(
+                        customerMode
+                                ? "Queue Size"
+                                : "Members Waiting",
+                        queueCountLabel
+                )
+        );
+
+
+        summaryPanel.add(
+                createStatCard(
+                        customerMode
+                                ? "My Position"
+                                : "Next Member",
+                        nextMemberLabel
+                )
+        );
+
+
+        summaryPanel.add(
+                createStatCard(
+                        "Selected Book",
+                        selectedBookLabel
+                )
+        );
+
+
+        topSection.add(
+                summaryPanel,
+                BorderLayout.EAST
+        );
+
+
+        content.add(
+                topSection,
+                BorderLayout.NORTH
+        );
+
+
+        JPanel tableCard =
+                createCard();
+
+        tableCard.setLayout(
+                new BorderLayout(
+                        0,
                         15
                 )
         );
 
-        resultArea.setForeground(TEXT_COLOR);
 
-        resultArea.setBackground(
-                CARD_COLOR
+        JPanel tableHeading =
+                new JPanel();
+
+        tableHeading.setOpaque(
+                false
         );
 
-        resultArea.setLineWrap(true);
-
-        resultArea.setWrapStyleWord(true);
-
-        resultArea.setBorder(
-                new EmptyBorder(
-                        20, 25, 20, 25
+        tableHeading.setLayout(
+                new BoxLayout(
+                        tableHeading,
+                        BoxLayout.Y_AXIS
                 )
         );
 
-        resultArea.setText(
-                "Enter a Book ID and Member ID\n"
-                        + "to manage the waiting list."
-        );
 
-        JScrollPane scrollPane =
-                new JScrollPane(resultArea);
-
-        scrollPane.setBorder(
-                BorderFactory.createLineBorder(
-                        new Color(225, 230, 235)
-                )
-        );
-
-        // ================= CENTER =================
-
-        JPanel centerPanel =
-                new JPanel(
-                        new BorderLayout(15, 15)
+        JLabel tableTitle =
+                new JLabel(
+                        customerMode
+                                ? "My Queue Status"
+                                : "Waiting Queue"
                 );
 
-        centerPanel.setBackground(
-                BACKGROUND
+        tableTitle.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        20
+                )
         );
 
-        centerPanel.add(
-                inputPanel,
+        tableTitle.setForeground(
+                TEXT_COLOR
+        );
+
+
+        JLabel tableSubtitle =
+                new JLabel(
+                        customerMode
+                                ? "Your position for the selected book"
+                                : "Members are served using FIFO order"
+                );
+
+        tableSubtitle.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        tableSubtitle.setForeground(
+                SUBTEXT_COLOR
+        );
+
+
+        tableHeading.add(
+                tableTitle
+        );
+
+        tableHeading.add(
+                Box.createVerticalStrut(4)
+        );
+
+        tableHeading.add(
+                tableSubtitle
+        );
+
+
+        tableCard.add(
+                tableHeading,
                 BorderLayout.NORTH
         );
 
-        centerPanel.add(
+
+        String[] columns = {
+                "Position",
+                "Member ID",
+                "Queue Status"
+        };
+
+
+        tableModel =
+                new DefaultTableModel(
+                        columns,
+                        0
+                ) {
+
+                    @Override
+                    public boolean isCellEditable(
+                            int row,
+                            int column
+                    ) {
+
+                        return false;
+                    }
+                };
+
+
+        waitingTable =
+                new JTable(
+                        tableModel
+                );
+
+
+        styleTable(
+                waitingTable
+        );
+
+
+        JScrollPane scrollPane =
+                new JScrollPane(
+                        waitingTable
+                );
+
+
+        scrollPane.setBorder(
+                BorderFactory.createLineBorder(
+                        BORDER_COLOR
+                )
+        );
+
+
+        scrollPane
+                .getViewport()
+                .setBackground(
+                        Color.WHITE
+                );
+
+
+        tableCard.add(
                 scrollPane,
                 BorderLayout.CENTER
         );
 
-        mainPanel.add(
-                centerPanel,
+
+        content.add(
+                tableCard,
                 BorderLayout.CENTER
         );
 
-        // ================= BUTTON ACTIONS =================
+
+        statusLabel =
+                new JLabel(
+                        customerMode
+                                ? "Enter a Book ID to manage your waiting request."
+                                : "Enter a Book ID to view or manage its waiting queue."
+                );
+
+
+        statusLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        statusLabel.setForeground(
+                SUBTEXT_COLOR
+        );
+
+
+        content.add(
+                statusLabel,
+                BorderLayout.SOUTH
+        );
+
+
+        root.add(
+                content,
+                BorderLayout.CENTER
+        );
+
+
+        setContentPane(
+                root
+        );
+
 
         addButton.addActionListener(
                 e -> addMember()
         );
 
+
         viewButton.addActionListener(
                 e -> viewWaitingList()
         );
+
 
         removeButton.addActionListener(
                 e -> removeMember()
         );
 
-        add(mainPanel);
+
+        bookIdField.addActionListener(
+                e -> viewWaitingList()
+        );
     }
 
-    // ================= ADD MEMBER =================
 
     private void addMember() {
 
-        try {
+        Integer bookId =
+                parseId(
+                        bookIdField,
+                        "Book ID"
+                );
 
-            int bookId =
-                    Integer.parseInt(
-                            bookIdField.getText().trim()
-                    );
 
-            int memberId =
-                    Integer.parseInt(
-                            memberIdField.getText().trim()
-                    );
-
-            manager.addToWaitingList(
-                    bookId,
-                    memberId
-            );
-
-            resultArea.setText(
-                    "Member " + memberId
-                            + " added to the waiting list "
-                            + "for Book " + bookId + "."
-            );
-
-        } catch (NumberFormatException e) {
-
-            resultArea.setText(
-                    "Please enter valid numeric "
-                            + "Book ID and Member ID."
-            );
+        if (bookId == null) {
+            return;
         }
+
+
+        Integer memberId =
+                getSelectedMemberId();
+
+
+        if (memberId == null) {
+            return;
+        }
+
+
+        String result =
+                manager.addToWaitingList(
+                        bookId,
+                        memberId
+                );
+
+
+        statusLabel.setText(
+                result
+        );
+
+
+        refreshQueue(
+                bookId
+        );
     }
 
-    // ================= VIEW LIST =================
+
 
     private void viewWaitingList() {
 
-        try {
-
-            int bookId =
-                    Integer.parseInt(
-                            bookIdField.getText().trim()
-                    );
-
-            List<Integer> members =
-                    manager.getWaitingList(bookId);
-
-            resultArea.setText(
-                    "WAITING LIST\n\n"
-                            + "Book ID: "
-                            + bookId
-                            + "\n\n"
-            );
-
-            if (members.isEmpty()) {
-
-                resultArea.append(
-                        "No members are waiting "
-                                + "for this book."
+        Integer bookId =
+                parseId(
+                        bookIdField,
+                        "Book ID"
                 );
 
-            } else {
 
-                resultArea.append(
-                        "Members waiting:\n\n"
-                );
-
-                for (int i = 0;
-                     i < members.size();
-                     i++) {
-
-                    resultArea.append(
-                            (i + 1)
-                                    + ". Member "
-                                    + members.get(i)
-                                    + "\n"
-                    );
-                }
-
-                Integer nextMember =
-                        manager.getNextMember(bookId);
-
-                resultArea.append(
-                        "\nNext Member: "
-                                + nextMember
-                );
-            }
-
-        } catch (NumberFormatException e) {
-
-            resultArea.setText(
-                    "Please enter a valid Book ID."
-            );
+        if (bookId == null) {
+            return;
         }
+
+
+        refreshQueue(
+                bookId
+        );
     }
 
-    // ================= REMOVE MEMBER =================
+    private void refreshQueue(
+            int bookId
+    ) {
+
+        tableModel.setRowCount(
+                0
+        );
+
+
+        selectedBookLabel.setText(
+                String.valueOf(
+                        bookId
+                )
+        );
+
+
+        List<Integer> members =
+                manager.getWaitingList(
+                        bookId
+                );
+
+
+        queueCountLabel.setText(
+                String.valueOf(
+                        members.size()
+                )
+        );
+
+
+        if (customerMode) {
+
+            int position =
+                    manager.getMemberPosition(
+                            bookId,
+                            loggedInMemberId
+                    );
+
+
+            if (position == -1) {
+
+                nextMemberLabel.setText(
+                        "-"
+                );
+
+
+                statusLabel.setText(
+                        "You are not currently in the waiting list "
+                                + "for Book "
+                                + bookId
+                                + "."
+                );
+
+
+                return;
+            }
+
+
+            nextMemberLabel.setText(
+                    String.valueOf(
+                            position
+                    )
+            );
+
+
+            String status =
+                    position == 1
+                            ? "NEXT IN QUEUE"
+                            : "WAITING";
+
+
+            tableModel.addRow(
+                    new Object[]{
+                            position,
+                            loggedInMemberId,
+                            status
+                    }
+            );
+
+
+            statusLabel.setText(
+                    "You are currently position "
+                            + position
+                            + " in the waiting list for Book "
+                            + bookId
+                            + "."
+            );
+
+
+            return;
+        }
+
+
+        if (members.isEmpty()) {
+
+            nextMemberLabel.setText(
+                    "-"
+            );
+
+
+            statusLabel.setText(
+                    "No members are currently waiting for Book "
+                            + bookId
+                            + "."
+            );
+
+
+            return;
+        }
+
+
+        for (int i = 0;
+             i < members.size();
+             i++) {
+
+
+            int position =
+                    i + 1;
+
+
+            String status =
+                    position == 1
+                            ? "NEXT IN QUEUE"
+                            : "WAITING";
+
+
+            tableModel.addRow(
+                    new Object[]{
+                            position,
+                            members.get(i),
+                            status
+                    }
+            );
+        }
+
+
+        Integer nextMember =
+                manager.getNextMember(
+                        bookId
+                );
+
+
+        nextMemberLabel.setText(
+                nextMember == null
+                        ? "-"
+                        : String.valueOf(
+                        nextMember
+                )
+        );
+
+
+        statusLabel.setText(
+                members.size()
+                        + " member(s) waiting for Book "
+                        + bookId
+                        + "."
+        );
+    }
+
 
     private void removeMember() {
 
+        Integer bookId =
+                parseId(
+                        bookIdField,
+                        "Book ID"
+                );
+
+
+        if (bookId == null) {
+            return;
+        }
+
+
+        Integer memberId =
+                getSelectedMemberId();
+
+
+        if (memberId == null) {
+            return;
+        }
+
+
+        String result =
+                manager.removeFromWaitingList(
+                        bookId,
+                        memberId
+                );
+
+
+        statusLabel.setText(
+                result
+        );
+
+
+        refreshQueue(
+                bookId
+        );
+    }
+
+
+    private Integer getSelectedMemberId() {
+
+        if (customerMode) {
+
+            return loggedInMemberId;
+        }
+
+
+        return parseId(
+                memberIdField,
+                "Member ID"
+        );
+    }
+
+
+    private Integer parseId(
+            JTextField field,
+            String fieldName
+    ) {
+
+        String text =
+                field
+                        .getText()
+                        .trim();
+
+
+        if (text.isEmpty()) {
+
+            statusLabel.setText(
+                    "Please enter "
+                            + fieldName
+                            + "."
+            );
+
+            field.requestFocus();
+
+            return null;
+        }
+
+
         try {
 
-            int bookId =
+            int value =
                     Integer.parseInt(
-                            bookIdField.getText().trim()
+                            text
                     );
 
-            int memberId =
-                    Integer.parseInt(
-                            memberIdField.getText().trim()
-                    );
 
-            manager.removeFromWaitingList(
-                    bookId,
-                    memberId
+            if (value <= 0) {
+
+                throw new NumberFormatException();
+            }
+
+
+            return value;
+
+
+        } catch (
+                NumberFormatException e
+        ) {
+
+            statusLabel.setText(
+                    fieldName
+                            + " must be a positive number."
             );
 
-            resultArea.setText(
-                    "Member " + memberId
-                            + " was removed from the "
-                            + "waiting list for Book "
-                            + bookId + "."
-            );
 
-        } catch (NumberFormatException e) {
+            field.requestFocus();
 
-            resultArea.setText(
-                    "Please enter valid numeric "
-                            + "Book ID and Member ID."
-            );
+            return null;
         }
     }
 
-    // ================= BUTTON DESIGN =================
 
-    private JButton createButton(String text) {
+    private JPanel createCard() {
+
+        JPanel card =
+                new JPanel();
+
+
+        card.setBackground(
+                CARD_COLOR
+        );
+
+
+        card.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER_COLOR
+                        ),
+                        new EmptyBorder(
+                                20,
+                                24,
+                                20,
+                                24
+                        )
+                )
+        );
+
+
+        return card;
+    }
+
+
+
+    private JPanel createStatCard(
+            String title,
+            JLabel value
+    ) {
+
+        JPanel card =
+                new JPanel();
+
+
+        card.setLayout(
+                new BoxLayout(
+                        card,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+
+        card.setBackground(
+                CARD_COLOR
+        );
+
+
+        card.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER_COLOR
+                        ),
+                        new EmptyBorder(
+                                14,
+                                18,
+                                14,
+                                18
+                        )
+                )
+        );
+
+
+        JLabel titleLabel =
+                new JLabel(
+                        title
+                );
+
+
+        titleLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        12
+                )
+        );
+
+
+        titleLabel.setForeground(
+                SUBTEXT_COLOR
+        );
+
+
+        card.add(
+                titleLabel
+        );
+
+
+        card.add(
+                Box.createVerticalStrut(5)
+        );
+
+
+        card.add(
+                value
+        );
+
+
+        return card;
+    }
+
+
+    private JLabel createValueLabel(
+            String value
+    ) {
+
+        JLabel label =
+                new JLabel(
+                        value
+                );
+
+
+        label.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        23
+                )
+        );
+
+
+        label.setForeground(
+                TEXT_COLOR
+        );
+
+
+        return label;
+    }
+
+
+    private JLabel createFieldLabel(
+            String text
+    ) {
+
+        JLabel label =
+                new JLabel(
+                        text
+                );
+
+
+        label.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        13
+                )
+        );
+
+
+        label.setForeground(
+                TEXT_COLOR
+        );
+
+
+        return label;
+    }
+
+
+    private JTextField createTextField() {
+
+        JTextField field =
+                new JTextField();
+
+
+        field.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        14
+                )
+        );
+
+
+        return field;
+    }
+
+
+    private JButton createButton(
+            String text,
+            Color background,
+            Color foreground
+    ) {
 
         JButton button =
-                new JButton(text);
+                new JButton(
+                        text
+                );
+
+
+        button.setUI(
+                new BasicButtonUI()
+        );
+
 
         button.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.BOLD,
                         12
                 )
         );
 
-        button.setForeground(Color.WHITE);
 
-        button.setBackground(
-                BUTTON_COLOR
+        button.setForeground(
+                foreground
         );
 
-        button.setFocusPainted(false);
+
+        button.setBackground(
+                background
+        );
+
+
+        button.setOpaque(
+                true
+        );
+
+
+        button.setContentAreaFilled(
+                true
+        );
+
+
+        button.setBorderPainted(
+                false
+        );
+
+
+        button.setFocusPainted(
+                false
+        );
+
 
         button.setCursor(
                 new Cursor(
@@ -502,25 +1412,92 @@ public class WaitingListPanel extends JFrame {
                 )
         );
 
-        button.setBorder(
-                BorderFactory.createEmptyBorder(
-                        10, 15, 10, 15
-                )
-        );
 
         return button;
     }
 
-    // ================= MAIN =================
 
-    public static void main(String[] args) {
+    private void styleTable(
+            JTable table
+    ) {
 
-        SwingUtilities.invokeLater(() -> {
+        table.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        14
+                )
+        );
 
-            WaitingListPanel panel =
-                    new WaitingListPanel();
 
-            panel.setVisible(true);
-        });
+        table.setRowHeight(
+                38
+        );
+
+
+        table.setFillsViewportHeight(
+                true
+        );
+
+
+        table.setSelectionMode(
+                ListSelectionModel
+                        .SINGLE_SELECTION
+        );
+
+
+        table.setShowVerticalLines(
+                false
+        );
+
+
+        table.setGridColor(
+                BORDER_COLOR
+        );
+
+
+        table.setSelectionBackground(
+                new Color(
+                        219,
+                        234,
+                        254
+                )
+        );
+
+
+        table.setSelectionForeground(
+                TEXT_COLOR
+        );
+
+
+        table.getTableHeader()
+                .setFont(
+                        new Font(
+                                "Segoe UI",
+                                Font.BOLD,
+                                14
+                        )
+                );
+
+
+        table.getTableHeader()
+                .setBackground(
+                        SECONDARY_COLOR
+                );
+
+
+        table.getTableHeader()
+                .setForeground(
+                        TEXT_COLOR
+                );
+
+
+        table.getTableHeader()
+                .setPreferredSize(
+                        new Dimension(
+                                0,
+                                42
+                        )
+                );
     }
 }

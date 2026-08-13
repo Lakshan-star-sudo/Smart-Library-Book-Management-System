@@ -4,6 +4,7 @@ import library.datastructure.BookBST;
 import library.manager.BookManager;
 import library.manager.BorrowingManager;
 import library.manager.MemberManager;
+import waitinglist.WaitingListManager;
 
 public class LibrarySystem {
 
@@ -11,6 +12,7 @@ public class LibrarySystem {
     private final BookManager bookManager;
     private final BorrowingManager borrowingManager;
     private final MemberManager memberManager;
+    private final WaitingListManager waitingListManager;
 
     public LibrarySystem() {
 
@@ -24,6 +26,11 @@ public class LibrarySystem {
 
         borrowingManager =
                 new BorrowingManager(
+                        bookManager,
+                        memberManager
+                );
+        waitingListManager =
+                new WaitingListManager(
                         bookManager,
                         memberManager
                 );
@@ -43,5 +50,9 @@ public class LibrarySystem {
 
     public BorrowingManager getBorrowingManager() {
         return borrowingManager;
+    }
+
+    public WaitingListManager getWaitingListManager() {
+        return waitingListManager;
     }
 }

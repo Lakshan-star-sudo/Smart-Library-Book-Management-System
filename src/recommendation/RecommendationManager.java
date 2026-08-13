@@ -1,45 +1,95 @@
 package recommendation;
 
+import library.manager.BookManager;
+import library.model.Book;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class RecommendationManager {
 
-    /**
-     * Recommend books based on the selected category.
-     *
-     * @param category selected book category
-     * @param books list of books in the format:
-     *              "Book Title|Category"
-     * @return list of recommended book titles
-     */
-    public List<String> recommendBooks(String category, List<String> books) {
+    private final BookManager bookManager;
 
-        List<String> recommendations = new ArrayList<>();
+    public RecommendationManager(
+            BookManager bookManager
+    ) {
+        this.bookManager = bookManager;
+    }
 
-        if (category == null || category.trim().isEmpty()) {
+    // Recommend available books
+    // based on selected category
+    public List<Book> recommendBooks(
+            String category
+    ) {
+
+        List<Book> recommendations =
+                new ArrayList<>();
+
+        if (category == null
+                || category.trim().isEmpty()) {
+
             return recommendations;
         }
 
-        for (String book : books) {
+        for (Book book :
+                bookManager.getAllBooks()) {
 
-            if (book == null || book.trim().isEmpty()) {
+            if (book.getCategory() == null) {
                 continue;
             }
 
-            String[] bookDetails = book.split("\\|");
+            if (book.getCategory()
+                    .equalsIgnoreCase(
+                            category.trim()
+                    )
+                    && book.isAvailable()) {
 
-            if (bookDetails.length >= 2) {
-
-                String title = bookDetails[0].trim();
-                String bookCategory = bookDetails[1].trim();
-
-                if (bookCategory.equalsIgnoreCase(category.trim())) {
-                    recommendations.add(title);
-                }
+                recommendations.add(book);
             }
         }
 
         return recommendations;
+    }
+
+    // Get categories directly
+    // from books in the library
+    public List<String> getCategories() {
+
+        List<String> categories =
+                new ArrayList<>();
+
+        for (Book book :
+                bookManager.getAllBooks()) {
+
+            String category =
+                    book.getCategory();
+
+            if (category == null
+                    || category.trim().isEmpty()) {
+
+                continue;
+            }
+
+            boolean exists = false;
+
+            for (String existing :
+                    categories) {
+
+                if (existing.equalsIgnoreCase(
+                        category.trim()
+                )) {
+                    exists = true;
+                    break;
+                }
+            }
+
+            if (!exists) {
+                categories.add(
+                        category.trim()
+                );
+            }
+        }
+
+        return categories;
     }
 }

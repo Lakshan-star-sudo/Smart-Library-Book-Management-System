@@ -97,10 +97,6 @@ public class OverduePanel extends JFrame {
         );
 
 
-        // =========================
-        // HEADER
-        // =========================
-
         JPanel headerPanel =
                 new JPanel(
                         new BorderLayout()
@@ -198,10 +194,6 @@ public class OverduePanel extends JFrame {
         );
 
 
-        // =========================
-        // CONTENT
-        // =========================
-
         JPanel contentPanel =
                 new JPanel(
                         new BorderLayout(
@@ -223,10 +215,6 @@ public class OverduePanel extends JFrame {
                 )
         );
 
-
-        // =========================
-        // TOP AREA
-        // =========================
 
         JPanel topPanel =
                 new JPanel(
@@ -326,11 +314,6 @@ public class OverduePanel extends JFrame {
                 BorderLayout.NORTH
         );
 
-
-        // =========================
-        // TABLE CARD
-        // =========================
-
         JPanel tableCard =
                 new JPanel(
                         new BorderLayout(
@@ -425,10 +408,6 @@ public class OverduePanel extends JFrame {
                 BorderLayout.NORTH
         );
 
-
-        // =========================
-        // TABLE
-        // =========================
 
         String[] columns = {
                 "Member ID",
@@ -552,10 +531,6 @@ public class OverduePanel extends JFrame {
         );
 
 
-        // =========================
-        // STATUS
-        // =========================
-
         statusLabel =
                 new JLabel(
                         "Ready"
@@ -596,10 +571,6 @@ public class OverduePanel extends JFrame {
         );
     }
 
-
-    // =========================
-    // COUNT CARD
-    // =========================
 
     private JPanel createCountCard() {
 
@@ -691,10 +662,6 @@ public class OverduePanel extends JFrame {
         return card;
     }
 
-
-    // =========================
-    // REFRESH OVERDUE TABLE
-    // =========================
 
     private void refreshOverdueTable() {
 

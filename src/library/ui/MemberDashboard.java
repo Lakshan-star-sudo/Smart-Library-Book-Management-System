@@ -7,13 +7,9 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public class MemberDashboard extends JFrame {
 
-
-    // COLORS
     private static final Color BACKGROUND =
             new Color(245, 247, 250);
 
@@ -26,14 +22,8 @@ public class MemberDashboard extends JFrame {
     private static final Color PRIMARY_COLOR =
             new Color(37, 99, 235);
 
-    private static final Color PRIMARY_HOVER =
-            new Color(29, 78, 216);
-
     private static final Color DELETE_COLOR =
             new Color(220, 38, 38);
-
-    private static final Color DELETE_HOVER =
-            new Color(185, 28, 28);
 
     private static final Color TEXT_COLOR =
             new Color(31, 41, 55);
@@ -47,37 +37,31 @@ public class MemberDashboard extends JFrame {
     private static final Color SECONDARY_COLOR =
             new Color(249, 250, 251);
 
-    private static final Color SECONDARY_HOVER =
-            new Color(243, 244, 246);
-
-
-
 
     private final MemberManager memberManager;
 
-
-
-    // FORM FIELDS
     private JTextField idField;
     private JTextField nameField;
     private JTextField emailField;
     private JTextField phoneField;
-
-
-
+    private JPasswordField passwordField;
 
     private JTable memberTable;
     private DefaultTableModel tableModel;
 
-
     private JLabel memberCountLabel;
     private JLabel statusLabel;
 
-    public MemberDashboard(MemberManager memberManager) {
+
+    public MemberDashboard(
+            MemberManager memberManager
+    ) {
 
         this.memberManager = memberManager;
 
-        setTitle("Smart Library - Member Management");
+        setTitle(
+                "Smart Library - Member Management"
+        );
 
         setDefaultCloseOperation(
                 JFrame.DISPOSE_ON_CLOSE
@@ -99,48 +83,38 @@ public class MemberDashboard extends JFrame {
 
     private void createUI() {
 
-        JPanel mainPanel =
+        JPanel root =
                 new JPanel(new BorderLayout());
 
-        mainPanel.setBackground(BACKGROUND);
+        root.setBackground(BACKGROUND);
 
 
-        JPanel headerPanel =
+        JPanel header =
                 new JPanel(new BorderLayout());
 
-        headerPanel.setBackground(
-                HEADER_COLOR
-        );
+        header.setBackground(HEADER_COLOR);
 
-        headerPanel.setBorder(
+        header.setBorder(
                 new EmptyBorder(
-                        20,
-                        30,
-                        20,
-                        30
+                        20, 30, 20, 30
                 )
         );
 
+        JPanel headerText = new JPanel();
 
-        JPanel headerTextPanel =
-                new JPanel();
+        headerText.setOpaque(false);
 
-        headerTextPanel.setOpaque(false);
-
-        headerTextPanel.setLayout(
+        headerText.setLayout(
                 new BoxLayout(
-                        headerTextPanel,
+                        headerText,
                         BoxLayout.Y_AXIS
                 )
         );
 
+        JLabel title =
+                new JLabel("Member Management");
 
-        JLabel titleLabel =
-                new JLabel(
-                        "Member Management"
-                );
-
-        titleLabel.setFont(
+        title.setFont(
                 new Font(
                         "Segoe UI",
                         Font.BOLD,
@@ -148,17 +122,14 @@ public class MemberDashboard extends JFrame {
                 )
         );
 
-        titleLabel.setForeground(
-                Color.WHITE
-        );
+        title.setForeground(Color.WHITE);
 
-
-        JLabel subtitleLabel =
+        JLabel subtitle =
                 new JLabel(
-                        "Manage library members and membership information"
+                        "Manage members and customer login accounts"
                 );
 
-        subtitleLabel.setFont(
+        subtitle.setFont(
                 new Font(
                         "Segoe UI",
                         Font.PLAIN,
@@ -166,39 +137,26 @@ public class MemberDashboard extends JFrame {
                 )
         );
 
-        subtitleLabel.setForeground(
-                new Color(
-                        209,
-                        213,
-                        219
-                )
+        subtitle.setForeground(
+                new Color(209, 213, 219)
         );
 
+        headerText.add(title);
+        headerText.add(Box.createVerticalStrut(4));
+        headerText.add(subtitle);
 
-        headerTextPanel.add(titleLabel);
-
-        headerTextPanel.add(
-                Box.createVerticalStrut(4)
-        );
-
-        headerTextPanel.add(
-                subtitleLabel
-        );
-
-
-        headerPanel.add(
-                headerTextPanel,
+        header.add(
+                headerText,
                 BorderLayout.WEST
         );
 
-
-        mainPanel.add(
-                headerPanel,
+        root.add(
+                header,
                 BorderLayout.NORTH
         );
 
 
-        JPanel contentPanel =
+        JPanel content =
                 new JPanel(
                         new BorderLayout(
                                 18,
@@ -206,21 +164,16 @@ public class MemberDashboard extends JFrame {
                         )
                 );
 
-        contentPanel.setBackground(
-                BACKGROUND
-        );
+        content.setBackground(BACKGROUND);
 
-        contentPanel.setBorder(
+        content.setBorder(
                 new EmptyBorder(
-                        20,
-                        30,
-                        18,
-                        30
+                        18, 30, 18, 30
                 )
         );
 
 
-        JPanel statsPanel =
+        JPanel top =
                 new JPanel(
                         new FlowLayout(
                                 FlowLayout.LEFT,
@@ -229,30 +182,22 @@ public class MemberDashboard extends JFrame {
                         )
                 );
 
-        statsPanel.setOpaque(false);
+        top.setOpaque(false);
 
-        statsPanel.setPreferredSize(
-                new Dimension(
-                        0,
-                        82
-                )
+        top.setPreferredSize(
+                new Dimension(0, 76)
         );
 
+        top.add(createMemberCountCard());
 
-        JPanel totalMembersCard =
-                createTotalMembersCard();
-
-        statsPanel.add(
-                totalMembersCard
-        );
-
-
-        contentPanel.add(
-                statsPanel,
+        content.add(
+                top,
                 BorderLayout.NORTH
         );
 
-        JPanel centerPanel =
+
+
+        JPanel center =
                 new JPanel(
                         new BorderLayout(
                                 20,
@@ -260,17 +205,14 @@ public class MemberDashboard extends JFrame {
                         )
                 );
 
-        centerPanel.setOpaque(false);
+        center.setOpaque(false);
 
 
         JPanel formCard =
                 createCard();
 
         formCard.setPreferredSize(
-                new Dimension(
-                        430,
-                        0
-                )
+                new Dimension(430, 0)
         );
 
         formCard.setLayout(
@@ -280,11 +222,8 @@ public class MemberDashboard extends JFrame {
                 )
         );
 
-
         JLabel formTitle =
-                new JLabel(
-                        "Member Information"
-                );
+                new JLabel("Member Information");
 
         formTitle.setFont(
                 new Font(
@@ -294,10 +233,7 @@ public class MemberDashboard extends JFrame {
                 )
         );
 
-        formTitle.setForeground(
-                TEXT_COLOR
-        );
-
+        formTitle.setForeground(TEXT_COLOR);
 
         formCard.add(
                 formTitle,
@@ -305,139 +241,69 @@ public class MemberDashboard extends JFrame {
         );
 
 
-
-        // FORM FIELDS
-        JPanel fieldsPanel =
-                new JPanel();
-
-        fieldsPanel.setOpaque(false);
-
-        fieldsPanel.setLayout(
-                new BoxLayout(
-                        fieldsPanel,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
-
-
-        JLabel idLabel =
-                createFieldLabel(
-                        "Member ID"
+        JPanel fields =
+                new JPanel(
+                        new GridBagLayout()
                 );
 
-        idLabel.setAlignmentX(
-                Component.LEFT_ALIGNMENT
+        fields.setOpaque(false);
+
+        GridBagConstraints gbc =
+                new GridBagConstraints();
+
+        gbc.gridx = 0;
+        gbc.weightx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+
+        int row = 0;
+
+        idField = createTextField();
+        addField(
+                fields,
+                gbc,
+                row++,
+                "Member ID",
+                idField
         );
 
-        fieldsPanel.add(idLabel);
-
-        fieldsPanel.add(
-                Box.createVerticalStrut(5)
+        nameField = createTextField();
+        addField(
+                fields,
+                gbc,
+                row++,
+                "Name",
+                nameField
         );
 
-
-        idField =
-                createTextField();
-
-        idField.setAlignmentX(
-                Component.LEFT_ALIGNMENT
+        emailField = createTextField();
+        addField(
+                fields,
+                gbc,
+                row++,
+                "Email",
+                emailField
         );
 
-        fieldsPanel.add(idField);
-
-
-        fieldsPanel.add(
-                Box.createVerticalStrut(12)
+        phoneField = createTextField();
+        addField(
+                fields,
+                gbc,
+                row++,
+                "Phone Number",
+                phoneField
         );
 
-        JLabel nameLabel =
-                createFieldLabel(
-                        "Name"
-                );
+        passwordField =
+                createPasswordField();
 
-        nameLabel.setAlignmentX(
-                Component.LEFT_ALIGNMENT
+        addField(
+                fields,
+                gbc,
+                row,
+                "Login Password",
+                passwordField
         );
-
-        fieldsPanel.add(nameLabel);
-
-        fieldsPanel.add(
-                Box.createVerticalStrut(5)
-        );
-
-
-        nameField =
-                createTextField();
-
-        nameField.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        fieldsPanel.add(nameField);
-
-
-        fieldsPanel.add(
-                Box.createVerticalStrut(12)
-        );
-
-
-        JLabel emailLabel =
-                createFieldLabel(
-                        "Email"
-                );
-
-        emailLabel.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        fieldsPanel.add(emailLabel);
-
-        fieldsPanel.add(
-                Box.createVerticalStrut(5)
-        );
-
-
-        emailField =
-                createTextField();
-
-        emailField.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        fieldsPanel.add(emailField);
-
-
-        fieldsPanel.add(
-                Box.createVerticalStrut(12)
-        );
-
-
-        JLabel phoneLabel =
-                createFieldLabel(
-                        "Phone Number"
-                );
-
-        phoneLabel.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        fieldsPanel.add(phoneLabel);
-
-        fieldsPanel.add(
-                Box.createVerticalStrut(5)
-        );
-
-
-        phoneField =
-                createTextField();
-
-        phoneField.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        fieldsPanel.add(phoneField);
-
 
 
         JPanel fieldsWrapper =
@@ -448,10 +314,9 @@ public class MemberDashboard extends JFrame {
         fieldsWrapper.setOpaque(false);
 
         fieldsWrapper.add(
-                fieldsPanel,
+                fields,
                 BorderLayout.NORTH
         );
-
 
         formCard.add(
                 fieldsWrapper,
@@ -459,7 +324,7 @@ public class MemberDashboard extends JFrame {
         );
 
 
-        JPanel buttonPanel =
+        JPanel buttons =
                 new JPanel(
                         new GridLayout(
                                 3,
@@ -469,77 +334,72 @@ public class MemberDashboard extends JFrame {
                         )
                 );
 
-        buttonPanel.setOpaque(false);
+        buttons.setOpaque(false);
 
-        buttonPanel.setPreferredSize(
-                new Dimension(
-                        0,
-                        108
-                )
+        buttons.setPreferredSize(
+                new Dimension(0, 105)
         );
 
-
         JButton addButton =
-                createPrimaryButton(
-                        "Add Member"
+                createButton(
+                        "Add Member",
+                        PRIMARY_COLOR,
+                        Color.WHITE
                 );
-
 
         JButton searchButton =
-                createPrimaryButton(
-                        "Search"
+                createButton(
+                        "Search",
+                        PRIMARY_COLOR,
+                        Color.WHITE
                 );
-
 
         JButton updateButton =
-                createPrimaryButton(
-                        "Update"
+                createButton(
+                        "Update",
+                        PRIMARY_COLOR,
+                        Color.WHITE
                 );
-
 
         JButton deleteButton =
-                createDeleteButton(
-                        "Delete"
+                createButton(
+                        "Delete",
+                        DELETE_COLOR,
+                        Color.WHITE
                 );
-
 
         JButton clearButton =
-                createSecondaryButton(
-                        "Clear"
+                createButton(
+                        "Clear",
+                        SECONDARY_COLOR,
+                        TEXT_COLOR
                 );
-
 
         JButton showAllButton =
-                createSecondaryButton(
-                        "Show All"
+                createButton(
+                        "Show All",
+                        SECONDARY_COLOR,
+                        TEXT_COLOR
                 );
 
-
-        buttonPanel.add(addButton);
-        buttonPanel.add(searchButton);
-
-        buttonPanel.add(updateButton);
-        buttonPanel.add(deleteButton);
-
-        buttonPanel.add(clearButton);
-        buttonPanel.add(showAllButton);
-
+        buttons.add(addButton);
+        buttons.add(searchButton);
+        buttons.add(updateButton);
+        buttons.add(deleteButton);
+        buttons.add(clearButton);
+        buttons.add(showAllButton);
 
         formCard.add(
-                buttonPanel,
+                buttons,
                 BorderLayout.SOUTH
         );
 
-
-        centerPanel.add(
+        center.add(
                 formCard,
                 BorderLayout.WEST
         );
 
-
-
-        JPanel tableCard =
-                createCard();
+        JPanel tableCard = createCard();
 
         tableCard.setLayout(
                 new BorderLayout(
@@ -548,24 +408,19 @@ public class MemberDashboard extends JFrame {
                 )
         );
 
+        JPanel tableHeading = new JPanel();
 
-        JPanel tableHeaderPanel =
-                new JPanel();
+        tableHeading.setOpaque(false);
 
-        tableHeaderPanel.setOpaque(false);
-
-        tableHeaderPanel.setLayout(
+        tableHeading.setLayout(
                 new BoxLayout(
-                        tableHeaderPanel,
+                        tableHeading,
                         BoxLayout.Y_AXIS
                 )
         );
 
-
         JLabel tableTitle =
-                new JLabel(
-                        "Library Members"
-                );
+                new JLabel("Library Members");
 
         tableTitle.setFont(
                 new Font(
@@ -575,14 +430,11 @@ public class MemberDashboard extends JFrame {
                 )
         );
 
-        tableTitle.setForeground(
-                TEXT_COLOR
-        );
-
+        tableTitle.setForeground(TEXT_COLOR);
 
         JLabel tableSubtitle =
                 new JLabel(
-                        "Select a row to view or edit member information"
+                        "Passwords are hidden for security"
                 );
 
         tableSubtitle.setFont(
@@ -593,26 +445,14 @@ public class MemberDashboard extends JFrame {
                 )
         );
 
-        tableSubtitle.setForeground(
-                SUBTEXT_COLOR
-        );
+        tableSubtitle.setForeground(SUBTEXT_COLOR);
 
-
-        tableHeaderPanel.add(
-                tableTitle
-        );
-
-        tableHeaderPanel.add(
-                Box.createVerticalStrut(4)
-        );
-
-        tableHeaderPanel.add(
-                tableSubtitle
-        );
-
+        tableHeading.add(tableTitle);
+        tableHeading.add(Box.createVerticalStrut(4));
+        tableHeading.add(tableSubtitle);
 
         tableCard.add(
-                tableHeaderPanel,
+                tableHeading,
                 BorderLayout.NORTH
         );
 
@@ -624,29 +464,21 @@ public class MemberDashboard extends JFrame {
                 "Phone"
         };
 
-
         tableModel =
                 new DefaultTableModel(
                         columns,
                         0
                 ) {
-
                     @Override
                     public boolean isCellEditable(
                             int row,
                             int column
                     ) {
-
                         return false;
                     }
                 };
 
-
-        memberTable =
-                new JTable(
-                        tableModel
-                );
-
+        memberTable = new JTable(tableModel);
 
         memberTable.setFont(
                 new Font(
@@ -656,47 +488,11 @@ public class MemberDashboard extends JFrame {
                 )
         );
 
-        memberTable.setRowHeight(
-                36
-        );
-
-        memberTable.setSelectionMode(
-                ListSelectionModel
-                        .SINGLE_SELECTION
-        );
-
-        memberTable.setFillsViewportHeight(
-                true
-        );
-
-        memberTable.setShowVerticalLines(
-                false
-        );
-
-        memberTable.setShowHorizontalLines(
-                true
-        );
-
-        memberTable.setGridColor(
-                BORDER_COLOR
-        );
-
-        memberTable.setSelectionBackground(
-                new Color(
-                        219,
-                        234,
-                        254
-                )
-        );
-
-        memberTable.setSelectionForeground(
-                TEXT_COLOR
-        );
-
-        memberTable.setAutoCreateRowSorter(
-                true
-        );
-
+        memberTable.setRowHeight(36);
+        memberTable.setFillsViewportHeight(true);
+        memberTable.setShowVerticalLines(false);
+        memberTable.setGridColor(BORDER_COLOR);
+        memberTable.setAutoCreateRowSorter(true);
 
         memberTable
                 .getTableHeader()
@@ -708,36 +504,22 @@ public class MemberDashboard extends JFrame {
                         )
                 );
 
+        memberTable
+                .getTableHeader()
+                .setBackground(SECONDARY_COLOR);
 
         memberTable
                 .getTableHeader()
-                .setBackground(
-                        SECONDARY_COLOR
-                );
-
-
-        memberTable
-                .getTableHeader()
-                .setForeground(
-                        TEXT_COLOR
-                );
-
+                .setForeground(TEXT_COLOR);
 
         memberTable
                 .getTableHeader()
                 .setPreferredSize(
-                        new Dimension(
-                                0,
-                                40
-                        )
+                        new Dimension(0, 40)
                 );
-
 
         JScrollPane scrollPane =
-                new JScrollPane(
-                        memberTable
-                );
-
+                new JScrollPane(memberTable);
 
         scrollPane.setBorder(
                 BorderFactory.createLineBorder(
@@ -745,36 +527,23 @@ public class MemberDashboard extends JFrame {
                 )
         );
 
-
-        scrollPane
-                .getViewport()
-                .setBackground(
-                        Color.WHITE
-                );
-
-
         tableCard.add(
                 scrollPane,
                 BorderLayout.CENTER
         );
 
-
-        centerPanel.add(
+        center.add(
                 tableCard,
                 BorderLayout.CENTER
         );
 
-
-        contentPanel.add(
-                centerPanel,
+        content.add(
+                center,
                 BorderLayout.CENTER
         );
 
 
-        statusLabel =
-                new JLabel(
-                        "Ready"
-                );
+        statusLabel = new JLabel("Ready");
 
         statusLabel.setFont(
                 new Font(
@@ -784,26 +553,19 @@ public class MemberDashboard extends JFrame {
                 )
         );
 
-        statusLabel.setForeground(
-                SUBTEXT_COLOR
-        );
+        statusLabel.setForeground(SUBTEXT_COLOR);
 
-
-        contentPanel.add(
+        content.add(
                 statusLabel,
                 BorderLayout.SOUTH
         );
 
-
-        mainPanel.add(
-                contentPanel,
+        root.add(
+                content,
                 BorderLayout.CENTER
         );
 
-
-        setContentPane(
-                mainPanel
-        );
+        setContentPane(root);
 
 
 
@@ -811,41 +573,31 @@ public class MemberDashboard extends JFrame {
                 e -> addMember()
         );
 
-
         searchButton.addActionListener(
                 e -> searchMember()
         );
-
 
         updateButton.addActionListener(
                 e -> updateMember()
         );
 
-
         deleteButton.addActionListener(
                 e -> deleteMember()
         );
-
 
         clearButton.addActionListener(
                 e -> clearFields()
         );
 
-
         showAllButton.addActionListener(
                 e -> {
-
                     refreshMemberTable();
-
                     clearFields();
-
-                    setStatus(
+                    statusLabel.setText(
                             "Showing all members."
                     );
                 }
         );
-
-
 
         memberTable
                 .getSelectionModel()
@@ -856,69 +608,109 @@ public class MemberDashboard extends JFrame {
                                 return;
                             }
 
-
                             int viewRow =
-                                    memberTable
-                                            .getSelectedRow();
-
+                                    memberTable.getSelectedRow();
 
                             if (viewRow < 0) {
                                 return;
                             }
 
-
-                            int modelRow =
+                            int rowIndex =
                                     memberTable
                                             .convertRowIndexToModel(
                                                     viewRow
                                             );
 
-
                             idField.setText(
                                     tableModel
                                             .getValueAt(
-                                                    modelRow,
+                                                    rowIndex,
                                                     0
                                             )
                                             .toString()
                             );
 
-
                             nameField.setText(
                                     tableModel
                                             .getValueAt(
-                                                    modelRow,
+                                                    rowIndex,
                                                     1
                                             )
                                             .toString()
                             );
 
-
                             emailField.setText(
                                     tableModel
                                             .getValueAt(
-                                                    modelRow,
+                                                    rowIndex,
                                                     2
                                             )
                                             .toString()
                             );
 
-
                             phoneField.setText(
                                     tableModel
                                             .getValueAt(
-                                                    modelRow,
+                                                    rowIndex,
                                                     3
                                             )
                                             .toString()
                             );
 
+                            passwordField.setText("");
 
-                            setStatus(
-                                    "Member selected."
+                            statusLabel.setText(
+                                    "Member selected. "
+                                            + "Leave password blank to keep the current password."
                             );
                         }
                 );
+    }
+
+
+    private void addField(
+            JPanel panel,
+            GridBagConstraints gbc,
+            int row,
+            String labelText,
+            JComponent field
+    ) {
+
+        gbc.gridy = row * 2;
+        gbc.insets =
+                new Insets(
+                        row == 0 ? 0 : 5,
+                        0,
+                        4,
+                        0
+                );
+
+        JLabel label =
+                new JLabel(labelText);
+
+        label.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        13
+                )
+        );
+
+        label.setForeground(TEXT_COLOR);
+
+        panel.add(label, gbc);
+
+        gbc.gridy = row * 2 + 1;
+
+        gbc.insets =
+                new Insets(
+                        0,
+                        0,
+                        3,
+                        0
+                );
+
+        panel.add(field, gbc);
     }
 
 
@@ -933,76 +725,50 @@ public class MemberDashboard extends JFrame {
                                     .trim()
                     );
 
-
-            String name =
-                    nameField
-                            .getText()
-                            .trim();
-
-
-            String email =
-                    emailField
-                            .getText()
-                            .trim();
-
-
-            String phone =
-                    phoneField
-                            .getText()
-                            .trim();
-
+            String password =
+                    new String(
+                            passwordField.getPassword()
+                    );
 
             Member member =
                     new Member(
                             id,
-                            name,
-                            email,
-                            phone
+                            nameField.getText().trim(),
+                            emailField.getText().trim(),
+                            phoneField.getText().trim(),
+                            password
                     );
 
-
-            boolean success =
-                    memberManager
-                            .addMember(
-                                    member
-                            );
-
-
-            if (success) {
+            if (memberManager.addMember(member)) {
 
                 JOptionPane.showMessageDialog(
                         this,
-                        "Member added successfully.",
-                        "Member Management",
+                        "Member added successfully.\n"
+                                + "The member can now login using\n"
+                                + "Member ID or Email + Password.",
+                        "Member Added",
                         JOptionPane.INFORMATION_MESSAGE
                 );
 
-
                 refreshMemberTable();
-
                 clearFields();
-
-                setStatus(
-                        "Member added successfully."
-                );
 
             } else {
 
                 JOptionPane.showMessageDialog(
                         this,
                         "Member could not be added.\n\n"
-                                + "Please check:\n"
-                                + "- Member ID must be greater than 0\n"
-                                + "- Member ID must be unique\n"
-                                + "- Name cannot be empty\n"
-                                + "- Email must be valid\n"
-                                + "- Phone number must contain exactly 10 digits",
+                                + "Check:\n"
+                                + "- Member ID must be unique and greater than 0\n"
+                                + "- Email must be valid and unique\n"
+                                + "- Phone must contain exactly 10 digits\n"
+                                + "- Password must contain at least 6 characters",
                         "Add Member",
                         JOptionPane.WARNING_MESSAGE
                 );
             }
 
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException e) {
 
             JOptionPane.showMessageDialog(
                     this,
@@ -1025,43 +791,10 @@ public class MemberDashboard extends JFrame {
                                     .trim()
                     );
 
-
             Member member =
-                    memberManager
-                            .searchMember(
-                                    id
-                            );
+                    memberManager.searchMember(id);
 
-
-            if (member != null) {
-
-                nameField.setText(
-                        member.getName()
-                );
-
-
-                emailField.setText(
-                        member.getEmail()
-                );
-
-
-                phoneField.setText(
-                        member.getPhone()
-                );
-
-
-                selectMemberInTable(
-                        id
-                );
-
-
-                setStatus(
-                        "Member ID "
-                                + id
-                                + " found."
-                );
-
-            } else {
+            if (member == null) {
 
                 JOptionPane.showMessageDialog(
                         this,
@@ -1070,13 +803,33 @@ public class MemberDashboard extends JFrame {
                         JOptionPane.INFORMATION_MESSAGE
                 );
 
+                return;
+            }
 
-                setStatus(
-                        "Member not found."
+            nameField.setText(member.getName());
+            emailField.setText(member.getEmail());
+            phoneField.setText(member.getPhone());
+
+            // Never show stored password
+            passwordField.setText("");
+
+            selectMemberInTable(id);
+
+            if (member.getPassword() == null
+                    || member.getPassword().isEmpty()) {
+
+                statusLabel.setText(
+                        "Old member account: enter a new password and click Update."
+                );
+
+            } else {
+
+                statusLabel.setText(
+                        "Member found. Leave password blank to keep current password."
                 );
             }
 
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException e) {
 
             JOptionPane.showMessageDialog(
                     this,
@@ -1086,6 +839,7 @@ public class MemberDashboard extends JFrame {
             );
         }
     }
+
 
     private void updateMember() {
 
@@ -1098,65 +852,45 @@ public class MemberDashboard extends JFrame {
                                     .trim()
                     );
 
-
-            String name =
-                    nameField
-                            .getText()
-                            .trim();
-
-
-            String email =
-                    emailField
-                            .getText()
-                            .trim();
-
-
-            String phone =
-                    phoneField
-                            .getText()
-                            .trim();
-
+            String password =
+                    new String(
+                            passwordField.getPassword()
+                    );
 
             boolean success =
-                    memberManager
-                            .updateMember(
-                                    id,
-                                    name,
-                                    email,
-                                    phone
-                            );
-
+                    memberManager.updateMember(
+                            id,
+                            nameField.getText().trim(),
+                            emailField.getText().trim(),
+                            phoneField.getText().trim(),
+                            password
+                    );
 
             if (success) {
 
                 JOptionPane.showMessageDialog(
                         this,
                         "Member updated successfully.",
-                        "Member Management",
+                        "Update Member",
                         JOptionPane.INFORMATION_MESSAGE
                 );
 
-
                 refreshMemberTable();
-
                 clearFields();
-
-                setStatus(
-                        "Member updated successfully."
-                );
 
             } else {
 
                 JOptionPane.showMessageDialog(
                         this,
                         "Member could not be updated.\n\n"
-                                + "Check Member ID, email and phone number.",
+                                + "Check email, phone and password.\n"
+                                + "Old members without a password must be given a password.",
                         "Update Member",
                         JOptionPane.WARNING_MESSAGE
                 );
             }
 
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException e) {
 
             JOptionPane.showMessageDialog(
                     this,
@@ -1166,6 +900,7 @@ public class MemberDashboard extends JFrame {
             );
         }
     }
+
 
     private void deleteMember() {
 
@@ -1178,50 +913,30 @@ public class MemberDashboard extends JFrame {
                                     .trim()
                     );
 
-
-            int confirmation =
+            int confirm =
                     JOptionPane.showConfirmDialog(
                             this,
-                            "Are you sure you want to delete member ID "
-                                    + id
-                                    + "?",
+                            "Delete member ID " + id + "?",
                             "Confirm Delete",
                             JOptionPane.YES_NO_OPTION,
                             JOptionPane.WARNING_MESSAGE
                     );
 
-
-            if (confirmation
-                    != JOptionPane.YES_OPTION) {
-
+            if (confirm != JOptionPane.YES_OPTION) {
                 return;
             }
 
-
-            boolean success =
-                    memberManager
-                            .deleteMember(
-                                    id
-                            );
-
-
-            if (success) {
+            if (memberManager.deleteMember(id)) {
 
                 JOptionPane.showMessageDialog(
                         this,
                         "Member deleted successfully.",
-                        "Member Management",
+                        "Delete Member",
                         JOptionPane.INFORMATION_MESSAGE
                 );
 
-
                 refreshMemberTable();
-
                 clearFields();
-
-                setStatus(
-                        "Member deleted successfully."
-                );
 
             } else {
 
@@ -1233,7 +948,7 @@ public class MemberDashboard extends JFrame {
                 );
             }
 
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException e) {
 
             JOptionPane.showMessageDialog(
                     this,
@@ -1243,10 +958,11 @@ public class MemberDashboard extends JFrame {
             );
         }
     }
+
+
     private void refreshMemberTable() {
 
         tableModel.setRowCount(0);
-
 
         for (Member member :
                 memberManager.getAllMembers()) {
@@ -1261,70 +977,37 @@ public class MemberDashboard extends JFrame {
             );
         }
 
-
-        updateMemberCount();
-    }
-
-    private void updateMemberCount() {
-
         memberCountLabel.setText(
                 String.valueOf(
-                        memberManager
-                                .getMemberCount()
+                        memberManager.getMemberCount()
                 )
         );
     }
 
 
-    private void selectMemberInTable(
-            int memberId
-    ) {
+    private void selectMemberInTable(int memberId) {
 
-        for (int modelRow = 0;
-             modelRow < tableModel.getRowCount();
-             modelRow++) {
-
+        for (int row = 0;
+             row < tableModel.getRowCount();
+             row++) {
 
             int id =
                     Integer.parseInt(
                             tableModel
-                                    .getValueAt(
-                                            modelRow,
-                                            0
-                                    )
+                                    .getValueAt(row, 0)
                                     .toString()
                     );
-
 
             if (id == memberId) {
 
                 int viewRow =
                         memberTable
-                                .convertRowIndexToView(
-                                        modelRow
-                                );
+                                .convertRowIndexToView(row);
 
-
-                if (viewRow >= 0) {
-
-                    memberTable
-                            .setRowSelectionInterval(
-                                    viewRow,
-                                    viewRow
-                            );
-
-
-                    memberTable
-                            .scrollRectToVisible(
-                                    memberTable
-                                            .getCellRect(
-                                                    viewRow,
-                                                    0,
-                                                    true
-                                            )
-                            );
-                }
-
+                memberTable.setRowSelectionInterval(
+                        viewRow,
+                        viewRow
+                );
 
                 break;
             }
@@ -1335,39 +1018,24 @@ public class MemberDashboard extends JFrame {
     private void clearFields() {
 
         idField.setText("");
-
         nameField.setText("");
-
         emailField.setText("");
-
         phoneField.setText("");
-
+        passwordField.setText("");
 
         memberTable.clearSelection();
 
+        statusLabel.setText("Ready");
+
         idField.requestFocusInWindow();
-
-        setStatus("Ready");
-    }
-
-
-    private void setStatus(String message) {
-
-        statusLabel.setText(
-                message
-        );
     }
 
 
     private JPanel createCard() {
 
-        JPanel panel =
-                new JPanel();
+        JPanel panel = new JPanel();
 
-        panel.setBackground(
-                CARD_COLOR
-        );
-
+        panel.setBackground(CARD_COLOR);
 
         panel.setBorder(
                 BorderFactory.createCompoundBorder(
@@ -1375,38 +1043,28 @@ public class MemberDashboard extends JFrame {
                                 BORDER_COLOR
                         ),
                         new EmptyBorder(
-                                20,
-                                24,
-                                20,
-                                24
+                                18,
+                                22,
+                                18,
+                                22
                         )
                 )
         );
 
-
         return panel;
     }
 
-    private JPanel createTotalMembersCard() {
+
+    private JPanel createMemberCountCard() {
 
         JPanel card =
-                new JPanel(
-                        new BorderLayout()
-                );
-
+                new JPanel(new BorderLayout());
 
         card.setPreferredSize(
-                new Dimension(
-                        250,
-                        80
-                )
+                new Dimension(250, 72)
         );
 
-
-        card.setBackground(
-                CARD_COLOR
-        );
-
+        card.setBackground(CARD_COLOR);
 
         card.setBorder(
                 BorderFactory.createCompoundBorder(
@@ -1414,20 +1072,16 @@ public class MemberDashboard extends JFrame {
                                 BORDER_COLOR
                         ),
                         new EmptyBorder(
-                                12,
+                                10,
                                 18,
-                                12,
+                                10,
                                 18
                         )
                 )
         );
 
-
         JLabel title =
-                new JLabel(
-                        "Total Members"
-                );
-
+                new JLabel("Total Members");
 
         title.setFont(
                 new Font(
@@ -1437,17 +1091,9 @@ public class MemberDashboard extends JFrame {
                 )
         );
 
+        title.setForeground(SUBTEXT_COLOR);
 
-        title.setForeground(
-                SUBTEXT_COLOR
-        );
-
-
-        memberCountLabel =
-                new JLabel(
-                        "0"
-                );
-
+        memberCountLabel = new JLabel("0");
 
         memberCountLabel.setFont(
                 new Font(
@@ -1457,60 +1103,40 @@ public class MemberDashboard extends JFrame {
                 )
         );
 
+        memberCountLabel.setForeground(TEXT_COLOR);
 
-        memberCountLabel.setForeground(
-                TEXT_COLOR
-        );
-
-
-        card.add(
-                title,
-                BorderLayout.NORTH
-        );
-
-
+        card.add(title, BorderLayout.NORTH);
         card.add(
                 memberCountLabel,
                 BorderLayout.CENTER
         );
 
-
         return card;
     }
 
 
-    private JLabel createFieldLabel(
-            String text
-    ) {
-
-        JLabel label =
-                new JLabel(
-                        text
-                );
-
-
-        label.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        13
-                )
-        );
-
-
-        label.setForeground(
-                TEXT_COLOR
-        );
-
-
-        return label;
-    }
-
     private JTextField createTextField() {
 
-        JTextField field =
-                new JTextField();
+        JTextField field = new JTextField();
 
+        styleInput(field);
+
+        return field;
+    }
+
+
+    private JPasswordField createPasswordField() {
+
+        JPasswordField field =
+                new JPasswordField();
+
+        styleInput(field);
+
+        return field;
+    }
+
+
+    private void styleInput(JTextField field) {
 
         field.setFont(
                 new Font(
@@ -1520,30 +1146,9 @@ public class MemberDashboard extends JFrame {
                 )
         );
 
-        Dimension size =
-                new Dimension(
-                        360,
-                        38
-                );
-
-
-        field.setPreferredSize(size);
-
-        field.setMaximumSize(
-                new Dimension(
-                        Integer.MAX_VALUE,
-                        38
-                )
+        field.setPreferredSize(
+                new Dimension(360, 34)
         );
-
-
-        field.setMinimumSize(
-                new Dimension(
-                        150,
-                        38
-                )
-        );
-
 
         field.setBorder(
                 BorderFactory.createCompoundBorder(
@@ -1558,68 +1163,16 @@ public class MemberDashboard extends JFrame {
                         )
                 )
         );
-
-
-        return field;
     }
 
 
-
-    private JButton createPrimaryButton(
-            String text
+    private JButton createButton(
+            String text,
+            Color background,
+            Color foreground
     ) {
 
-        JButton button =
-                new JButton(
-                        text
-                );
-
-
-        styleButton(
-                button,
-                PRIMARY_COLOR,
-                PRIMARY_HOVER,
-                Color.WHITE
-        );
-
-
-        return button;
-    }
-
-
-
-    private JButton createDeleteButton(
-            String text
-    ) {
-
-        JButton button =
-                new JButton(
-                        text
-                );
-
-
-        styleButton(
-                button,
-                DELETE_COLOR,
-                DELETE_HOVER,
-                Color.WHITE
-        );
-
-
-        return button;
-    }
-
-
-
-    private JButton createSecondaryButton(
-            String text
-    ) {
-
-        JButton button =
-                new JButton(
-                        text
-                );
-
+        JButton button = new JButton(text);
 
         button.setFont(
                 new Font(
@@ -1629,104 +1182,14 @@ public class MemberDashboard extends JFrame {
                 )
         );
 
+        button.setForeground(foreground);
+        button.setBackground(background);
 
-        button.setForeground(
-                TEXT_COLOR
-        );
-
-
-        button.setBackground(
-                SECONDARY_COLOR
-        );
-
-
-        button.setFocusPainted(false);
-
+        // IMPORTANT - Windows Look & Feel fix
         button.setOpaque(true);
-
         button.setContentAreaFilled(true);
-
-
-        button.setCursor(
-                new Cursor(
-                        Cursor.HAND_CURSOR
-                )
-        );
-
-
-        button.setBorder(
-                BorderFactory.createLineBorder(
-                        BORDER_COLOR
-                )
-        );
-
-
-        button.addMouseListener(
-                new MouseAdapter() {
-
-                    @Override
-                    public void mouseEntered(
-                            MouseEvent e
-                    ) {
-
-                        button.setBackground(
-                                SECONDARY_HOVER
-                        );
-                    }
-
-
-                    @Override
-                    public void mouseExited(
-                            MouseEvent e
-                    ) {
-
-                        button.setBackground(
-                                SECONDARY_COLOR
-                        );
-                    }
-                }
-        );
-
-
-        return button;
-    }
-
-
-
-    private void styleButton(
-            JButton button,
-            Color normalColor,
-            Color hoverColor,
-            Color textColor
-    ) {
-
-        button.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        13
-                )
-        );
-
-
-        button.setForeground(
-                textColor
-        );
-
-
-        button.setBackground(
-                normalColor
-        );
-
-
-        button.setFocusPainted(false);
-
         button.setBorderPainted(false);
-
-        button.setOpaque(true);
-
-        button.setContentAreaFilled(true);
-
+        button.setFocusPainted(false);
 
         button.setCursor(
                 new Cursor(
@@ -1734,31 +1197,6 @@ public class MemberDashboard extends JFrame {
                 )
         );
 
-
-        button.addMouseListener(
-                new MouseAdapter() {
-
-                    @Override
-                    public void mouseEntered(
-                            MouseEvent e
-                    ) {
-
-                        button.setBackground(
-                                hoverColor
-                        );
-                    }
-
-
-                    @Override
-                    public void mouseExited(
-                            MouseEvent e
-                    ) {
-
-                        button.setBackground(
-                                normalColor
-                        );
-                    }
-                }
-        );
+        return button;
     }
 }

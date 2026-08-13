@@ -18,10 +18,6 @@ public class OverdueManager {
                 borrowingManager;
     }
 
-    // =========================
-    // FIND OVERDUE RECORDS
-    // =========================
-
     public List<BorrowingRecord> findOverdueBooks() {
 
         List<BorrowingRecord> overdueRecords =
@@ -42,9 +38,6 @@ public class OverdueManager {
     }
 
 
-    // =========================
-    // OVERDUE COUNT
-    // =========================
 
     public int getOverdueCount() {
 
@@ -52,10 +45,6 @@ public class OverdueManager {
                 .size();
     }
 
-
-    // =========================
-    // OVERDUE TEXT
-    // =========================
 
     public String getOverdueReport() {
 

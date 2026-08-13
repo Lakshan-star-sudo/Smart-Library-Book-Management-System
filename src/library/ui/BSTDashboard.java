@@ -61,9 +61,6 @@ public class BSTDashboard extends JFrame {
 
         setLayout(new BorderLayout());
 
-        // =========================
-        // HEADER
-        // =========================
 
         JPanel headerPanel = new JPanel(
                 new BorderLayout()
@@ -151,9 +148,6 @@ public class BSTDashboard extends JFrame {
                 BorderLayout.NORTH
         );
 
-        // =========================
-        // MAIN CONTENT
-        // =========================
 
         JPanel contentPanel = new JPanel();
 
@@ -177,9 +171,6 @@ public class BSTDashboard extends JFrame {
                 )
         );
 
-        // =========================
-        // BOOK INPUT PANEL
-        // =========================
 
         JPanel inputPanel =
                 new JPanel(
@@ -250,10 +241,8 @@ public class BSTDashboard extends JFrame {
                 Box.createVerticalStrut(10)
         );
 
-        // =========================
-        // AVAILABILITY
-        // =========================
 
+        // AVAILABILITY
         JPanel availabilityPanel =
                 new JPanel(
                         new FlowLayout(
@@ -284,10 +273,8 @@ public class BSTDashboard extends JFrame {
                 Box.createVerticalStrut(10)
         );
 
-        // =========================
-        // CRUD BUTTONS
-        // =========================
 
+        // CRUD BUTTONS
         JPanel crudPanel =
                 new JPanel(
                         new FlowLayout(
@@ -364,10 +351,6 @@ public class BSTDashboard extends JFrame {
         contentPanel.add(
                 Box.createVerticalStrut(15)
         );
-
-        // =========================
-        // SEARCH AREA
-        // =========================
 
         JPanel searchPanel =
                 new JPanel(
@@ -474,9 +457,6 @@ public class BSTDashboard extends JFrame {
                 Box.createVerticalStrut(15)
         );
 
-        // =========================
-        // STATISTICS
-        // =========================
 
         JPanel statsPanel =
                 new JPanel(
@@ -544,10 +524,6 @@ public class BSTDashboard extends JFrame {
         contentPanel.add(
                 Box.createVerticalStrut(15)
         );
-
-        // =========================
-        // BOOK TABLE
-        // =========================
 
         String[] columns = {
                 "Book ID",
@@ -674,9 +650,6 @@ public class BSTDashboard extends JFrame {
                 scrollPane
         );
 
-        // =========================
-        // TABLE SELECTION
-        // =========================
 
         bookTable.getSelectionModel()
                 .addListSelectionListener(
@@ -755,9 +728,6 @@ public class BSTDashboard extends JFrame {
                         }
                 );
 
-        // =========================
-        // STATUS
-        // =========================
 
         contentPanel.add(
                 Box.createVerticalStrut(10)
@@ -794,10 +764,8 @@ public class BSTDashboard extends JFrame {
         );
     }
 
-    // =========================
-    // ADD BOOK
-    // =========================
 
+    // ADD BOOK
     private void addBook() {
 
         try {
@@ -887,10 +855,8 @@ public class BSTDashboard extends JFrame {
         }
     }
 
-    // =========================
-    // SEARCH BOOK
-    // =========================
 
+    // SEARCH BOOK
     private void searchBook() {
 
         String input =
@@ -983,10 +949,8 @@ public class BSTDashboard extends JFrame {
         }
     }
 
-    // =========================
-    // UPDATE BOOK
-    // =========================
 
+    // UPDATE BOOK
     private void updateBook() {
 
         try {
@@ -1081,10 +1045,8 @@ public class BSTDashboard extends JFrame {
         }
     }
 
-    // =========================
-    // DELETE BOOK
-    // =========================
 
+    // DELETE BOOK
     private void deleteBook() {
 
         String input =
@@ -1184,10 +1146,6 @@ public class BSTDashboard extends JFrame {
         }
     }
 
-    // =========================
-    // CLEAR FIELDS
-    // =========================
-
     private void clearFields() {
 
         bookIdField.setText("");
@@ -1205,9 +1163,6 @@ public class BSTDashboard extends JFrame {
         refreshBookTable();
     }
 
-    // =========================
-    // REFRESH TABLE
-    // =========================
 
     private void refreshBookTable() {
 
@@ -1231,10 +1186,8 @@ public class BSTDashboard extends JFrame {
         }
     }
 
-    // =========================
-    // ADD BOOK TO TABLE
-    // =========================
 
+    // ADD BOOK TO TABLE
     private void addBookToTable(
             Book book
     ) {
@@ -1253,10 +1206,8 @@ public class BSTDashboard extends JFrame {
         );
     }
 
-    // =========================
-    // BST INFORMATION
-    // =========================
 
+    // BST INFORMATION
     private void updateStatistics() {
 
         List<Book> books =
@@ -1302,9 +1253,6 @@ public class BSTDashboard extends JFrame {
         );
     }
 
-    // =========================
-    // STAT CARD
-    // =========================
 
     private JPanel createStatCard(
             String title,
@@ -1389,9 +1337,6 @@ public class BSTDashboard extends JFrame {
         return card;
     }
 
-    // =========================
-    // PRIMARY BUTTON
-    // =========================
 
     private JButton createPrimaryButton(
             String text
@@ -1441,9 +1386,6 @@ public class BSTDashboard extends JFrame {
         return button;
     }
 
-    // =========================
-    // SECONDARY BUTTON
-    // =========================
 
     private JButton createSecondaryButton(
             String text

@@ -26,7 +26,8 @@ public class BorrowingRecord implements Serializable {
 
         this.dueDate =
                 LocalDate.parse(borrowDate)
-                        .plusDays(14)
+                        .minusDays(1)
+                       // .plusDays(14)
                         .toString();
 
         this.returnDate = "-";

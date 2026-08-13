@@ -13,15 +13,16 @@ import java.util.List;
 
 public class MemberManager {
 
-    private final List<Member> members;
     private static final String DATA_FILE = "members.dat";
+
+    private final List<Member> members;
 
     public MemberManager() {
         members = new ArrayList<>();
         loadMembers();
     }
 
-    // Add Member
+    // ADD MEMBER
     public boolean addMember(Member member) {
 
         if (member == null) {
@@ -32,8 +33,8 @@ public class MemberManager {
             return false;
         }
 
-        if (member.getName() == null ||
-                member.getName().trim().isEmpty()) {
+        if (member.getName() == null
+                || member.getName().trim().isEmpty()) {
             return false;
         }
 
@@ -45,17 +46,28 @@ public class MemberManager {
             return false;
         }
 
-        // Prevent duplicate Member IDs
+        if (!isValidPassword(member.getPassword())) {
+            return false;
+        }
+
         if (searchMember(member.getMemberId()) != null) {
             return false;
         }
 
+        // Email is used for login, therefore it must be unique.
+        if (searchMemberByEmail(member.getEmail()) != null) {
+            return false;
+        }
+
         members.add(member);
+
         saveMembers();
+
         return true;
     }
 
-    // Search Member
+
+    // SEARCH BY ID
     public Member searchMember(int memberId) {
 
         for (Member member : members) {
@@ -68,55 +80,171 @@ public class MemberManager {
         return null;
     }
 
-    // Update Member
-    public boolean updateMember(int memberId,
-                                String name,
-                                String email,
-                                String phone) {
+
+    // SEARCH BY EMAIL
+    public Member searchMemberByEmail(String email) {
+
+        if (email == null) {
+            return null;
+        }
+
+        for (Member member : members) {
+
+            if (member.getEmail() != null
+                    && member.getEmail()
+                    .equalsIgnoreCase(email.trim())) {
+
+                return member;
+            }
+        }
+
+        return null;
+    }
+
+    // MEMBER LOGIN
+    public Member authenticateMember(
+            String login,
+            String password
+    ) {
+
+        if (login == null
+                || login.trim().isEmpty()
+                || password == null
+                || password.isEmpty()) {
+
+            return null;
+        }
+
+        Member member = null;
+
+        String loginValue = login.trim();
+
+        // Allow Member ID OR Email
+        try {
+
+            int memberId =
+                    Integer.parseInt(loginValue);
+
+            member = searchMember(memberId);
+
+        } catch (NumberFormatException ignored) {
+
+            member =
+                    searchMemberByEmail(loginValue);
+        }
+
+        if (member == null) {
+            return null;
+        }
+
+        if (member.getPassword() == null) {
+            return null;
+        }
+
+        if (!member.getPassword().equals(password)) {
+            return null;
+        }
+
+        return member;
+    }
+
+    // UPDATE MEMBER
+    public boolean updateMember(
+            int memberId,
+            String name,
+            String email,
+            String phone,
+            String password
+    ) {
 
         if (memberId <= 0) {
             return false;
         }
 
-        if (name == null || name.trim().isEmpty()) {
+        if (name == null
+                || name.trim().isEmpty()) {
             return false;
         }
 
-        // Validate email format
         if (!isValidEmail(email)) {
             return false;
         }
 
-        // Validate phone format
         if (!isValidPhone(phone)) {
             return false;
         }
 
-        Member member = searchMember(memberId);
+        Member member =
+                searchMember(memberId);
 
         if (member == null) {
             return false;
         }
 
-        member.setName(name);
-        member.setEmail(email);
-        member.setPhone(phone);
+
+        Member emailOwner =
+                searchMemberByEmail(email);
+
+        if (emailOwner != null
+                && emailOwner.getMemberId() != memberId) {
+
+            return false;
+        }
+
+        if (password == null
+                || password.trim().isEmpty()) {
+
+            if (!isValidPassword(member.getPassword())) {
+                return false;
+            }
+
+        } else {
+
+            if (!isValidPassword(password)) {
+                return false;
+            }
+
+            member.setPassword(password);
+        }
+
+        member.setName(name.trim());
+        member.setEmail(email.trim());
+        member.setPhone(phone.trim());
 
         saveMembers();
 
         return true;
     }
 
-    // Delete Member
+    public boolean updateMember(
+            int memberId,
+            String name,
+            String email,
+            String phone
+    ) {
+
+        return updateMember(
+                memberId,
+                name,
+                email,
+                phone,
+                null
+        );
+    }
+
+
+    // DELETE MEMBER
     public boolean deleteMember(int memberId) {
 
-        Member member = searchMember(memberId);
+        Member member =
+                searchMember(memberId);
 
         if (member == null) {
             return false;
         }
 
-        boolean removed = members.remove(member);
+        boolean removed =
+                members.remove(member);
 
         if (removed) {
             saveMembers();
@@ -124,39 +252,53 @@ public class MemberManager {
 
         return removed;
     }
-    // Get all Members
+
+
+    // GET MEMBERS
     public List<Member> getAllMembers() {
         return new ArrayList<>(members);
     }
 
-    // Check whether there are no Members
     public boolean isEmpty() {
         return members.isEmpty();
     }
 
-    // Get number of Members
     public int getMemberCount() {
         return members.size();
     }
 
-    // Validate Email
+
+    // VALIDATION
     private boolean isValidEmail(String email) {
+
         return email != null
-                && email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
+                && email.matches(
+                "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"
+        );
     }
 
-    // Validate Phone
     private boolean isValidPhone(String phone) {
+
         return phone != null
                 && phone.matches("\\d{10}");
     }
 
+    private boolean isValidPassword(String password) {
+
+        return password != null
+                && password.length() >= 6;
+    }
+
+
+    // SAVE
     private void saveMembers() {
 
-        try (ObjectOutputStream output =
-                     new ObjectOutputStream(
-                             new FileOutputStream(DATA_FILE)
-                     )) {
+        try (
+                ObjectOutputStream output =
+                        new ObjectOutputStream(
+                                new FileOutputStream(DATA_FILE)
+                        )
+        ) {
 
             output.writeObject(members);
 
@@ -168,13 +310,18 @@ public class MemberManager {
             );
         }
     }
+
+
+    // LOAD
     @SuppressWarnings("unchecked")
     private void loadMembers() {
 
-        try (ObjectInputStream input =
-                     new ObjectInputStream(
-                             new FileInputStream(DATA_FILE)
-                     )) {
+        try (
+                ObjectInputStream input =
+                        new ObjectInputStream(
+                                new FileInputStream(DATA_FILE)
+                        )
+        ) {
 
             List<Member> savedMembers =
                     (List<Member>) input.readObject();
@@ -183,9 +330,11 @@ public class MemberManager {
 
         } catch (java.io.FileNotFoundException e) {
 
-            // First run: members.dat does not exist yet.
 
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (
+                IOException
+                | ClassNotFoundException e
+        ) {
 
             System.err.println(
                     "Could not load members: "

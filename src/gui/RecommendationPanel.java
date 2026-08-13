@@ -1,402 +1,1010 @@
 package gui;
 
+import library.manager.BookManager;
+import library.model.Book;
 import recommendation.RecommendationManager;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.List;
 
 public class RecommendationPanel extends JFrame {
 
-    private final Color BACKGROUND = new Color(245, 247, 250);
-    private final Color CARD_COLOR = Color.WHITE;
-    private final Color TEXT_COLOR = new Color(35, 45, 55);
-    private final Color SUBTEXT_COLOR = new Color(100, 110, 120);
-    private final Color BUTTON_COLOR = new Color(45, 95, 160);
+    // COLORS
+    private static final Color BACKGROUND =
+            new Color(245, 247, 250);
 
-    private JComboBox<String> categoryComboBox;
-    private JTextArea resultArea;
+    private static final Color HEADER_COLOR =
+            new Color(31, 41, 55);
 
-    public RecommendationPanel() {
+    private static final Color CARD_COLOR =
+            Color.WHITE;
 
-        setTitle("Smart Recommendations");
-        setSize(700, 600);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setResizable(false);
+    private static final Color PRIMARY_COLOR =
+            new Color(37, 99, 235);
 
-        JPanel mainPanel = new JPanel(new BorderLayout(20, 20));
-        mainPanel.setBackground(BACKGROUND);
-        mainPanel.setBorder(
-                new EmptyBorder(30, 40, 30, 40)
-        );
+    private static final Color TEXT_COLOR =
+            new Color(31, 41, 55);
 
-        // ================= HEADER =================
+    private static final Color SUBTEXT_COLOR =
+            new Color(107, 114, 128);
 
-        JPanel headerPanel = new JPanel();
-        headerPanel.setBackground(BACKGROUND);
-        headerPanel.setLayout(
-                new BoxLayout(headerPanel, BoxLayout.Y_AXIS)
-        );
+    private static final Color BORDER_COLOR =
+            new Color(229, 231, 235);
 
-        JLabel titleLabel =
-                new JLabel("BOOK RECOMMENDATIONS");
+    private static final Color SECONDARY_COLOR =
+            new Color(249, 250, 251);
 
-        titleLabel.setFont(
-                new Font("SansSerif", Font.BOLD, 28)
-        );
+    private final RecommendationManager
+            recommendationManager;
 
-        titleLabel.setForeground(TEXT_COLOR);
-        titleLabel.setAlignmentX(
-                Component.CENTER_ALIGNMENT
-        );
 
-        JLabel subtitleLabel =
-                new JLabel(
-                        "Find books based on your interests"
+    private JComboBox<String>
+            categoryComboBox;
+
+    private JTable
+            recommendationTable;
+
+    private DefaultTableModel
+            tableModel;
+
+    private JLabel
+            resultCountLabel;
+
+    private JLabel
+            statusLabel;
+
+
+
+    public RecommendationPanel(
+            BookManager bookManager
+    ) {
+
+        recommendationManager =
+                new RecommendationManager(
+                        bookManager
                 );
 
-        subtitleLabel.setFont(
-                new Font("SansSerif", Font.PLAIN, 14)
+
+        setTitle(
+                "Smart Library - Book Recommendations"
         );
 
-        subtitleLabel.setForeground(SUBTEXT_COLOR);
-        subtitleLabel.setAlignmentX(
-                Component.CENTER_ALIGNMENT
+        setDefaultCloseOperation(
+                JFrame.DISPOSE_ON_CLOSE
         );
 
-        headerPanel.add(titleLabel);
-        headerPanel.add(
-                Box.createVerticalStrut(6)
-        );
-        headerPanel.add(subtitleLabel);
-
-        mainPanel.add(
-                headerPanel,
-                BorderLayout.NORTH
+        setExtendedState(
+                JFrame.MAXIMIZED_BOTH
         );
 
-        // ================= SELECTION CARD =================
+        setMinimumSize(
+                new Dimension(
+                        1000,
+                        650
+                )
+        );
 
-        JPanel selectionPanel = new JPanel();
 
-        selectionPanel.setLayout(
+        createUI();
+
+        loadCategories();
+    }
+
+
+    private void createUI() {
+
+        JPanel root =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        root.setBackground(
+                BACKGROUND
+        );
+
+
+        JPanel headerPanel =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        headerPanel.setBackground(
+                HEADER_COLOR
+        );
+
+        headerPanel.setBorder(
+                new EmptyBorder(
+                        22,
+                        35,
+                        22,
+                        35
+                )
+        );
+
+
+        JPanel headerText =
+                new JPanel();
+
+        headerText.setOpaque(
+                false
+        );
+
+        headerText.setLayout(
                 new BoxLayout(
-                        selectionPanel,
+                        headerText,
                         BoxLayout.Y_AXIS
                 )
         );
 
-        selectionPanel.setBackground(CARD_COLOR);
 
-        selectionPanel.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                                new Color(225, 230, 235)
-                        ),
-                        new EmptyBorder(
-                                20, 30, 20, 30
-                        )
-                )
-        );
+        JLabel titleLabel =
+                new JLabel(
+                        "Book Recommendations"
+                );
 
-        // Category label
-
-        JLabel categoryLabel =
-                new JLabel("Select a Book Category");
-
-        categoryLabel.setFont(
+        titleLabel.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.BOLD,
-                        15
+                        30
                 )
         );
 
-        categoryLabel.setForeground(TEXT_COLOR);
-        categoryLabel.setAlignmentX(
-                Component.CENTER_ALIGNMENT
+        titleLabel.setForeground(
+                Color.WHITE
         );
 
-        selectionPanel.add(categoryLabel);
 
-        selectionPanel.add(
-                Box.createVerticalStrut(10)
+        JLabel subtitleLabel =
+                new JLabel(
+                        "Discover available books based on your interests"
+                );
+
+        subtitleLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        14
+                )
         );
 
-        // Category ComboBox
+        subtitleLabel.setForeground(
+                new Color(
+                        209,
+                        213,
+                        219
+                )
+        );
+
+
+        headerText.add(
+                titleLabel
+        );
+
+        headerText.add(
+                Box.createVerticalStrut(5)
+        );
+
+        headerText.add(
+                subtitleLabel
+        );
+
+
+        JLabel smartLabel =
+                new JLabel(
+                        "SMART FEATURE"
+                );
+
+        smartLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        13
+                )
+        );
+
+        smartLabel.setForeground(
+                Color.WHITE
+        );
+
+
+        headerPanel.add(
+                headerText,
+                BorderLayout.WEST
+        );
+
+        headerPanel.add(
+                smartLabel,
+                BorderLayout.EAST
+        );
+
+
+        root.add(
+                headerPanel,
+                BorderLayout.NORTH
+        );
+
+
+        JPanel contentPanel =
+                new JPanel(
+                        new BorderLayout(
+                                20,
+                                20
+                        )
+                );
+
+        contentPanel.setBackground(
+                BACKGROUND
+        );
+
+        contentPanel.setBorder(
+                new EmptyBorder(
+                        25,
+                        35,
+                        20,
+                        35
+                )
+        );
+
+
+        JPanel topPanel =
+                new JPanel(
+                        new BorderLayout(
+                                20,
+                                0
+                        )
+                );
+
+        topPanel.setOpaque(
+                false
+        );
+
+
+        JPanel filterCard =
+                createCard();
+
+        filterCard.setLayout(
+                new BorderLayout(
+                        15,
+                        10
+                )
+        );
+
+
+        JPanel filterText =
+                new JPanel();
+
+        filterText.setOpaque(
+                false
+        );
+
+        filterText.setLayout(
+                new BoxLayout(
+                        filterText,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+
+        JLabel filterTitle =
+                new JLabel(
+                        "Find Recommendations"
+                );
+
+        filterTitle.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        18
+                )
+        );
+
+        filterTitle.setForeground(
+                TEXT_COLOR
+        );
+
+
+        JLabel filterSubtitle =
+                new JLabel(
+                        "Select a category to view matching available books"
+                );
+
+        filterSubtitle.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        filterSubtitle.setForeground(
+                SUBTEXT_COLOR
+        );
+
+
+        filterText.add(
+                filterTitle
+        );
+
+        filterText.add(
+                Box.createVerticalStrut(4)
+        );
+
+        filterText.add(
+                filterSubtitle
+        );
+
+
+        filterCard.add(
+                filterText,
+                BorderLayout.NORTH
+        );
+
+
+        JPanel controls =
+                new JPanel(
+                        new BorderLayout(
+                                12,
+                                0
+                        )
+                );
+
+        controls.setOpaque(
+                false
+        );
+
 
         categoryComboBox =
-                new JComboBox<>(
-                        new String[]{
-                                "Computing",
-                                "Fiction",
-                                "Software Engineering"
-                        }
-                );
+                new JComboBox<>();
 
         categoryComboBox.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.PLAIN,
                         14
                 )
         );
 
         categoryComboBox.setPreferredSize(
-                new Dimension(300, 40)
+                new Dimension(
+                        350,
+                        42
+                )
         );
 
-        categoryComboBox.setMaximumSize(
-                new Dimension(300, 40)
-        );
-
-        categoryComboBox.setAlignmentX(
-                Component.CENTER_ALIGNMENT
-        );
-
-        selectionPanel.add(categoryComboBox);
-
-        selectionPanel.add(
-                Box.createVerticalStrut(15)
-        );
-
-        // Recommendation Button
 
         JButton recommendButton =
-                new JButton(
+                createPrimaryButton(
                         "GET RECOMMENDATIONS"
                 );
 
-        recommendButton.setFont(
+
+        controls.add(
+                categoryComboBox,
+                BorderLayout.CENTER
+        );
+
+        controls.add(
+                recommendButton,
+                BorderLayout.EAST
+        );
+
+
+        filterCard.add(
+                controls,
+                BorderLayout.SOUTH
+        );
+
+
+        topPanel.add(
+                filterCard,
+                BorderLayout.CENTER
+        );
+
+
+        JPanel countCard =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        countCard.setPreferredSize(
+                new Dimension(
+                        230,
+                        120
+                )
+        );
+
+        countCard.setBackground(
+                CARD_COLOR
+        );
+
+        countCard.setBorder(
+                BorderFactory
+                        .createCompoundBorder(
+                                BorderFactory
+                                        .createLineBorder(
+                                                BORDER_COLOR
+                                        ),
+                                new EmptyBorder(
+                                        18,
+                                        22,
+                                        18,
+                                        22
+                                )
+                        )
+        );
+
+
+        JLabel countTitle =
+                new JLabel(
+                        "Recommended Books"
+                );
+
+        countTitle.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        countTitle.setForeground(
+                SUBTEXT_COLOR
+        );
+
+
+        resultCountLabel =
+                new JLabel(
+                        "0"
+                );
+
+        resultCountLabel.setFont(
+                new Font(
+                        "Segoe UI",
                         Font.BOLD,
+                        32
+                )
+        );
+
+        resultCountLabel.setForeground(
+                TEXT_COLOR
+        );
+
+
+        countCard.add(
+                countTitle,
+                BorderLayout.NORTH
+        );
+
+        countCard.add(
+                resultCountLabel,
+                BorderLayout.CENTER
+        );
+
+
+        topPanel.add(
+                countCard,
+                BorderLayout.EAST
+        );
+
+
+        contentPanel.add(
+                topPanel,
+                BorderLayout.NORTH
+        );
+
+        JPanel tableCard =
+                createCard();
+
+        tableCard.setLayout(
+                new BorderLayout(
+                        0,
+                        15
+                )
+        );
+
+
+        JPanel tableHeading =
+                new JPanel();
+
+        tableHeading.setOpaque(
+                false
+        );
+
+        tableHeading.setLayout(
+                new BoxLayout(
+                        tableHeading,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+
+        JLabel tableTitle =
+                new JLabel(
+                        "Recommended Library Books"
+                );
+
+        tableTitle.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        20
+                )
+        );
+
+        tableTitle.setForeground(
+                TEXT_COLOR
+        );
+
+
+        JLabel tableSubtitle =
+                new JLabel(
+                        "Only currently available books are recommended"
+                );
+
+        tableSubtitle.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        tableSubtitle.setForeground(
+                SUBTEXT_COLOR
+        );
+
+
+        tableHeading.add(
+                tableTitle
+        );
+
+        tableHeading.add(
+                Box.createVerticalStrut(4)
+        );
+
+        tableHeading.add(
+                tableSubtitle
+        );
+
+
+        tableCard.add(
+                tableHeading,
+                BorderLayout.NORTH
+        );
+
+
+        String[] columns = {
+                "Book ID",
+                "Title",
+                "Author",
+                "Category",
+                "Published Year",
+                "Status"
+        };
+
+
+        tableModel =
+                new DefaultTableModel(
+                        columns,
+                        0
+                ) {
+
+                    @Override
+                    public boolean isCellEditable(
+                            int row,
+                            int column
+                    ) {
+
+                        return false;
+                    }
+                };
+
+
+        recommendationTable =
+                new JTable(
+                        tableModel
+                );
+
+
+        recommendationTable.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
                         14
                 )
         );
 
-        recommendButton.setForeground(
-                Color.WHITE
+
+        recommendationTable.setRowHeight(
+                38
         );
 
-        recommendButton.setBackground(
-                BUTTON_COLOR
+
+        recommendationTable.setSelectionMode(
+                ListSelectionModel
+                        .SINGLE_SELECTION
         );
 
-        recommendButton.setFocusPainted(false);
 
-        recommendButton.setBorder(
-                BorderFactory.createEmptyBorder(
-                        12, 25, 12, 25
+        recommendationTable.setFillsViewportHeight(
+                true
+        );
+
+
+        recommendationTable.setShowVerticalLines(
+                false
+        );
+
+
+        recommendationTable.setShowHorizontalLines(
+                true
+        );
+
+
+        recommendationTable.setGridColor(
+                BORDER_COLOR
+        );
+
+
+        recommendationTable.setSelectionBackground(
+                new Color(
+                        219,
+                        234,
+                        254
                 )
         );
 
-        recommendButton.setCursor(
-                new Cursor(
-                        Cursor.HAND_CURSOR
-                )
+
+        recommendationTable.setSelectionForeground(
+                TEXT_COLOR
         );
-        recommendButton.addMouseListener(new MouseAdapter() {
 
-            @Override
-            public void mouseEntered(MouseEvent e) {
 
-                recommendButton.setBackground(
-                        new Color(30, 75, 135)
+        recommendationTable.setAutoCreateRowSorter(
+                true
+        );
+
+
+        recommendationTable
+                .getTableHeader()
+                .setFont(
+                        new Font(
+                                "Segoe UI",
+                                Font.BOLD,
+                                14
+                        )
                 );
-            }
 
-            @Override
-            public void mouseExited(MouseEvent e) {
 
-                recommendButton.setBackground(
-                        BUTTON_COLOR
+        recommendationTable
+                .getTableHeader()
+                .setBackground(
+                        SECONDARY_COLOR
                 );
-            }
 
-            @Override
-            public void mousePressed(MouseEvent e) {
 
-                recommendButton.setBackground(
-                        new Color(20, 55, 105)
+        recommendationTable
+                .getTableHeader()
+                .setForeground(
+                        TEXT_COLOR
                 );
-            }
 
-            @Override
-            public void mouseReleased(MouseEvent e) {
 
-                recommendButton.setBackground(
-                        new Color(30, 75, 135)
+        recommendationTable
+                .getTableHeader()
+                .setPreferredSize(
+                        new Dimension(
+                                0,
+                                42
+                        )
                 );
-            }
-        });
 
-        recommendButton.setAlignmentX(
-                Component.CENTER_ALIGNMENT
-        );
-
-        selectionPanel.add(recommendButton);
-
-        // ================= RESULT AREA =================
-
-        resultArea = new JTextArea();
-
-        resultArea.setEditable(false);
-
-        resultArea.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.PLAIN,
-                        16
-                )
-        );
-
-        resultArea.setForeground(TEXT_COLOR);
-        resultArea.setBackground(CARD_COLOR);
-
-        resultArea.setLineWrap(true);
-        resultArea.setWrapStyleWord(true);
-
-        resultArea.setBorder(
-                new EmptyBorder(
-                        20, 25, 20, 25
-                )
-        );
-
-        resultArea.setText(
-                "Select a category and click\n"
-                        + "\"GET RECOMMENDATIONS\"."
-        );
 
         JScrollPane scrollPane =
-                new JScrollPane(resultArea);
-
-        scrollPane.setBorder(
-                BorderFactory.createLineBorder(
-                        new Color(225, 230, 235)
-                )
-        );
-
-        // ================= CENTER =================
-
-        JPanel centerPanel =
-                new JPanel(
-                        new BorderLayout(15, 15)
+                new JScrollPane(
+                        recommendationTable
                 );
 
-        centerPanel.setBackground(
-                BACKGROUND
+
+        scrollPane.setBorder(
+                BorderFactory
+                        .createLineBorder(
+                                BORDER_COLOR
+                        )
         );
 
-        centerPanel.add(
-                selectionPanel,
-                BorderLayout.NORTH
-        );
 
-        centerPanel.add(
+        scrollPane
+                .getViewport()
+                .setBackground(
+                        Color.WHITE
+                );
+
+
+        tableCard.add(
                 scrollPane,
                 BorderLayout.CENTER
         );
 
-        mainPanel.add(
-                centerPanel,
+
+        contentPanel.add(
+                tableCard,
                 BorderLayout.CENTER
         );
 
-        // ================= BUTTON ACTION =================
+
+        statusLabel =
+                new JLabel(
+                        "Select a category to get recommendations."
+                );
+
+
+        statusLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+
+        statusLabel.setForeground(
+                SUBTEXT_COLOR
+        );
+
+
+        contentPanel.add(
+                statusLabel,
+                BorderLayout.SOUTH
+        );
+
+
+        root.add(
+                contentPanel,
+                BorderLayout.CENTER
+        );
+
+
+        setContentPane(
+                root
+        );
+
 
         recommendButton.addActionListener(
                 e -> showRecommendations()
         );
 
-        add(mainPanel);
+
+        categoryComboBox.addActionListener(
+                e -> {
+
+                    if (categoryComboBox
+                            .getSelectedItem() != null) {
+
+                        statusLabel.setText(
+                                "Selected category: "
+                                        + categoryComboBox
+                                        .getSelectedItem()
+                        );
+                    }
+                }
+        );
     }
 
-    // ================= RECOMMENDATION LOGIC =================
+    private void loadCategories() {
 
-    private void showRecommendations() {
+        categoryComboBox.removeAllItems();
 
-        String selectedCategory =
-                (String) categoryComboBox
-                        .getSelectedItem();
 
-        RecommendationManager manager =
-                new RecommendationManager();
+        List<String> categories =
+                recommendationManager
+                        .getCategories();
 
-        List<String> books =
-                new ArrayList<>();
 
-        books.add(
-                "Data Structures|Computing"
-        );
+        for (String category :
+                categories) {
 
-        books.add(
-                "Java Programming|Computing"
-        );
+            categoryComboBox.addItem(
+                    category
+            );
+        }
 
-        books.add(
-                "Database Systems|Computing"
-        );
 
-        books.add(
-                "Harry Potter|Fiction"
-        );
+        if (categories.isEmpty()) {
 
-        books.add(
-                "Clean Code|Software Engineering"
-        );
+            statusLabel.setText(
+                    "No book categories are available."
+            );
 
-        List<String> recommendations =
-                manager.recommendBooks(
-                        selectedCategory,
-                        books
-                );
-
-        resultArea.setText("");
-
-        if (recommendations.isEmpty()) {
-
-            resultArea.setText(
-                    "No recommended books found."
+            resultCountLabel.setText(
+                    "0"
             );
 
         } else {
 
-            resultArea.append(
-                    "RECOMMENDED BOOKS\n\n"
+            statusLabel.setText(
+                    "Select a category and click "
+                            + "GET RECOMMENDATIONS."
             );
-
-            resultArea.append(
-                    "Category: "
-                            + selectedCategory
-                            + "\n\n"
-            );
-
-            for (String book :
-                    recommendations) {
-
-                resultArea.append(
-                        "• " + book + "\n\n"
-                );
-            }
         }
     }
 
-    // ================= MAIN =================
 
-    public static void main(String[] args) {
+    private void showRecommendations() {
 
-        SwingUtilities.invokeLater(() -> {
+        String category =
+                (String)
+                        categoryComboBox
+                                .getSelectedItem();
 
-            RecommendationPanel panel =
-                    new RecommendationPanel();
 
-            panel.setVisible(true);
-        });
+        tableModel.setRowCount(
+                0
+        );
+
+
+        if (category == null) {
+
+            resultCountLabel.setText(
+                    "0"
+            );
+
+            statusLabel.setText(
+                    "No category selected."
+            );
+
+            return;
+        }
+
+
+        List<Book> recommendations =
+                recommendationManager
+                        .recommendBooks(
+                                category
+                        );
+
+
+        for (Book book :
+                recommendations) {
+
+            tableModel.addRow(
+                    new Object[]{
+                            book.getBookId(),
+                            book.getTitle(),
+                            book.getAuthor(),
+                            book.getCategory(),
+                            book.getPublishedYear(),
+                            "Available"
+                    }
+            );
+        }
+
+
+        resultCountLabel.setText(
+                String.valueOf(
+                        recommendations.size()
+                )
+        );
+
+
+        if (recommendations.isEmpty()) {
+
+            statusLabel.setText(
+                    "No available books found in "
+                            + category
+                            + "."
+            );
+
+        } else {
+
+            statusLabel.setText(
+                    recommendations.size()
+                            + " recommendation(s) found for "
+                            + category
+                            + "."
+            );
+        }
+    }
+
+    private JPanel createCard() {
+
+        JPanel card =
+                new JPanel();
+
+
+        card.setBackground(
+                CARD_COLOR
+        );
+
+
+        card.setBorder(
+                BorderFactory
+                        .createCompoundBorder(
+                                BorderFactory
+                                        .createLineBorder(
+                                                BORDER_COLOR
+                                        ),
+                                new EmptyBorder(
+                                        20,
+                                        24,
+                                        20,
+                                        24
+                                )
+                        )
+        );
+
+
+        return card;
+    }
+
+
+    private JButton createPrimaryButton(
+            String text
+    ) {
+
+        JButton button =
+                new JButton(
+                        text
+                );
+
+
+        button.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        13
+                )
+        );
+
+
+        button.setForeground(
+                Color.WHITE
+        );
+
+
+        button.setBackground(
+                PRIMARY_COLOR
+        );
+
+        button.setOpaque(
+                true
+        );
+
+        button.setContentAreaFilled(
+                true
+        );
+
+        button.setBorderPainted(
+                false
+        );
+
+
+        button.setFocusPainted(
+                false
+        );
+
+
+        button.setCursor(
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+
+        button.setBorder(
+                new EmptyBorder(
+                        12,
+                        22,
+                        12,
+                        22
+                )
+        );
+
+
+        return button;
     }
 }
