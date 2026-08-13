@@ -1,73 +1,93 @@
 package gui;
 
-import library.manager.BookManager;
 import library.manager.BorrowingManager;
-import library.manager.MemberManager;
 import library.model.Book;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class BorrowingGUI extends JFrame {
 
-    // ================= COLORS =================
 
-    private static final Color PAGE_BG =
-            new Color(244, 247, 252);
+    // COLORS
+    private static final Color BACKGROUND =
+            new Color(245, 247, 250);
 
-    private static final Color SIDEBAR =
+    private static final Color HEADER_COLOR =
             new Color(31, 41, 55);
 
-    private static final Color PRIMARY =
-            new Color(37, 99, 235);
-
-    private static final Color GREEN =
-            new Color(22, 163, 74);
-
-    private static final Color ORANGE =
-            new Color(234, 88, 12);
-
-    private static final Color PURPLE =
-            new Color(124, 58, 237);
-
-    private static final Color CARD =
+    private static final Color CARD_COLOR =
             Color.WHITE;
 
-    private static final Color TEXT_DARK =
+    private static final Color PRIMARY_COLOR =
+            new Color(37, 99, 235);
+
+    private static final Color PRIMARY_HOVER =
+            new Color(29, 78, 216);
+
+    private static final Color GREEN_COLOR =
+            new Color(22, 163, 74);
+
+    private static final Color GREEN_HOVER =
+            new Color(21, 128, 61);
+
+    private static final Color ORANGE_COLOR =
+            new Color(234, 88, 12);
+
+    private static final Color ORANGE_HOVER =
+            new Color(194, 65, 12);
+
+    private static final Color PURPLE_COLOR =
+            new Color(124, 58, 237);
+
+    private static final Color PURPLE_HOVER =
+            new Color(109, 40, 217);
+
+    private static final Color SECONDARY_COLOR =
+            new Color(249, 250, 251);
+
+    private static final Color SECONDARY_HOVER =
+            new Color(243, 244, 246);
+
+    private static final Color TEXT_COLOR =
             new Color(31, 41, 55);
 
-    private static final Color TEXT_GRAY =
+    private static final Color SUBTEXT_COLOR =
             new Color(107, 114, 128);
 
-    private static final Color BORDER =
+    private static final Color BORDER_COLOR =
             new Color(229, 231, 235);
 
 
-    // ================= COMPONENTS =================
+
+    // SHARED MANAGER
+    private final BorrowingManager manager;
+
 
     private JTextField memberIdField;
     private JTextField bookIdField;
 
     private JTextArea outputArea;
+
     private JLabel statusLabel;
 
-    private final BorrowingManager manager;
+    private JLabel activeBorrowingLabel;
+    private JLabel totalBorrowedLabel;
+    private JLabel totalReturnedLabel;
 
-
-    // ================= CONSTRUCTOR =================
 
     public BorrowingGUI(
-            BookManager bookManager,
-            MemberManager memberManager
+            BorrowingManager manager
     ) {
 
-        manager = new BorrowingManager(
-                bookManager,
-                memberManager
-        );
+        this.manager = manager;
 
-        setTitle("Smart Library - Borrowing Management");
+        setTitle(
+                "Smart Library - Borrowing Management"
+        );
 
         setDefaultCloseOperation(
                 JFrame.DISPOSE_ON_CLOSE
@@ -77,382 +97,59 @@ public class BorrowingGUI extends JFrame {
                 JFrame.MAXIMIZED_BOTH
         );
 
-        createGUI();
+        setMinimumSize(
+                new Dimension(
+                        1100,
+                        700
+                )
+        );
+
+        createUI();
+
+        updateStatistics();
     }
 
 
-    // =====================================================
-    // MAIN GUI
-    // =====================================================
-
-    private void createGUI() {
-
-        JPanel rootPanel =
-                new JPanel(new BorderLayout());
-
-        rootPanel.setBackground(PAGE_BG);
-
-
-        JPanel sidebar =
-                createSidebar();
-
-        rootPanel.add(
-                sidebar,
-                BorderLayout.WEST
-        );
-
-
-        JPanel contentPanel =
-                createMainContent();
-
-        rootPanel.add(
-                contentPanel,
-                BorderLayout.CENTER
-        );
-
-
-        add(rootPanel);
-    }
-
-
-    // =====================================================
-    // SIDEBAR
-    // =====================================================
-
-    private JPanel createSidebar() {
-
-        JPanel sidebar =
-                new JPanel();
-
-        sidebar.setPreferredSize(
-                new Dimension(220, 0)
-        );
-
-        sidebar.setBackground(SIDEBAR);
-
-        sidebar.setLayout(
-                new BoxLayout(
-                        sidebar,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
-        sidebar.setBorder(
-                new EmptyBorder(
-                        30, 20, 25, 20
-                )
-        );
-
-
-        JLabel logo =
-                new JLabel("SMART LIBRARY");
-
-        logo.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        22
-                )
-        );
-
-        logo.setForeground(Color.WHITE);
-
-        logo.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-
-        JLabel smallTitle =
-                new JLabel("Borrowing Management");
-
-        smallTitle.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        13
-                )
-        );
-
-        smallTitle.setForeground(
-                new Color(209, 213, 219)
-        );
-
-        smallTitle.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-
-        sidebar.add(logo);
-
-        sidebar.add(
-                Box.createVerticalStrut(5)
-        );
-
-        sidebar.add(smallTitle);
-
-        sidebar.add(
-                Box.createVerticalStrut(50)
-        );
-
-
-        JLabel menuLabel =
-                new JLabel("BORROWING");
-
-        menuLabel.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        11
-                )
-        );
-
-        menuLabel.setForeground(
-                new Color(156, 163, 175)
-        );
-
-        menuLabel.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        sidebar.add(menuLabel);
-
-        sidebar.add(
-                Box.createVerticalStrut(12)
-        );
-
-
-        JButton borrowMenu =
-                createSidebarButton("Borrow Book");
-
-        JButton returnMenu =
-                createSidebarButton("Return Book");
-
-        JButton availabilityMenu =
-                createSidebarButton(
-                        "Check Availability"
-                );
-
-        JButton recordsMenu =
-                createSidebarButton(
-                        "Borrowing Records"
-                );
-
-
-        sidebar.add(borrowMenu);
-
-        sidebar.add(
-                Box.createVerticalStrut(8)
-        );
-
-        sidebar.add(returnMenu);
-
-        sidebar.add(
-                Box.createVerticalStrut(8)
-        );
-
-        sidebar.add(availabilityMenu);
-
-        sidebar.add(
-                Box.createVerticalStrut(8)
-        );
-
-        sidebar.add(recordsMenu);
-
-
-        sidebar.add(
-                Box.createVerticalGlue()
-        );
-
-
-        JButton exitButton =
-                createSidebarButton("Close");
-
-        exitButton.setForeground(
-                new Color(248, 113, 113)
-        );
-
-        sidebar.add(exitButton);
-
-
-        borrowMenu.addActionListener(
-                e -> {
-
-                    memberIdField.requestFocus();
-
-                    statusLabel.setText(
-                            "Enter Member ID and Book ID to borrow a book."
-                    );
-                }
-        );
-
-
-        returnMenu.addActionListener(
-                e -> {
-
-                    memberIdField.requestFocus();
-
-                    statusLabel.setText(
-                            "Enter Member ID and Book ID to return a book."
-                    );
-                }
-        );
-
-
-        availabilityMenu.addActionListener(
-                e -> {
-
-                    bookIdField.requestFocus();
-
-                    statusLabel.setText(
-                            "Enter a Book ID to check availability."
-                    );
-                }
-        );
-
-
-        recordsMenu.addActionListener(
-                e -> viewRecords()
-        );
-
-
-        exitButton.addActionListener(
-                e -> dispose()
-        );
-
-
-        return sidebar;
-    }
-
-
-    // =====================================================
-    // MAIN CONTENT
-    // =====================================================
-
-    private JPanel createMainContent() {
+    // CREATE UI
+    private void createUI() {
 
         JPanel mainPanel =
-                new JPanel(
-                        new BorderLayout(
-                                0,
-                                20
-                        )
-                );
-
-        mainPanel.setBackground(PAGE_BG);
-
-        mainPanel.setBorder(
-                new EmptyBorder(
-                        30,
-                        35,
-                        25,
-                        35
-                )
-        );
-
-
-        JPanel topSection =
-                createTopSection();
-
-        mainPanel.add(
-                topSection,
-                BorderLayout.NORTH
-        );
-
-
-        JPanel centerPanel =
-                new JPanel();
-
-        centerPanel.setOpaque(false);
-
-        centerPanel.setLayout(
-                new BoxLayout(
-                        centerPanel,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
-
-        JPanel cards =
-                createFeatureCards();
-
-        cards.setMaximumSize(
-                new Dimension(
-                        Integer.MAX_VALUE,
-                        120
-                )
-        );
-
-        centerPanel.add(cards);
-
-        centerPanel.add(
-                Box.createVerticalStrut(20)
-        );
-
-
-        JPanel formCard =
-                createBorrowingForm();
-
-        formCard.setMaximumSize(
-                new Dimension(
-                        Integer.MAX_VALUE,
-                        230
-                )
-        );
-
-        centerPanel.add(formCard);
-
-        centerPanel.add(
-                Box.createVerticalStrut(20)
-        );
-
-
-        JPanel outputCard =
-                createOutputCard();
-
-        centerPanel.add(outputCard);
-
-
-        mainPanel.add(
-                centerPanel,
-                BorderLayout.CENTER
-        );
-
-
-        JPanel statusBar =
-                createStatusBar();
-
-        mainPanel.add(
-                statusBar,
-                BorderLayout.SOUTH
-        );
-
-
-        return mainPanel;
-    }
-
-
-    // =====================================================
-    // TOP HEADER
-    // =====================================================
-
-    private JPanel createTopSection() {
-
-        JPanel topPanel =
                 new JPanel(
                         new BorderLayout()
                 );
 
-        topPanel.setOpaque(false);
+        mainPanel.setBackground(
+                BACKGROUND
+        );
 
 
-        JPanel titlePanel =
+        JPanel headerPanel =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        headerPanel.setBackground(
+                HEADER_COLOR
+        );
+
+        headerPanel.setBorder(
+                new EmptyBorder(
+                        20,
+                        30,
+                        20,
+                        30
+                )
+        );
+
+
+        JPanel headerText =
                 new JPanel();
 
-        titlePanel.setOpaque(false);
+        headerText.setOpaque(false);
 
-        titlePanel.setLayout(
+        headerText.setLayout(
                 new BoxLayout(
-                        titlePanel,
+                        headerText,
                         BoxLayout.Y_AXIS
                 )
         );
@@ -467,11 +164,13 @@ public class BorrowingGUI extends JFrame {
                 new Font(
                         "Segoe UI",
                         Font.BOLD,
-                        30
+                        28
                 )
         );
 
-        title.setForeground(TEXT_DARK);
+        title.setForeground(
+                Color.WHITE
+        );
 
 
         JLabel subtitle =
@@ -487,35 +186,62 @@ public class BorrowingGUI extends JFrame {
                 )
         );
 
-        subtitle.setForeground(TEXT_GRAY);
-
-
-        titlePanel.add(title);
-
-        titlePanel.add(
-                Box.createVerticalStrut(5)
+        subtitle.setForeground(
+                new Color(
+                        209,
+                        213,
+                        219
+                )
         );
 
-        titlePanel.add(subtitle);
+
+        headerText.add(
+                title
+        );
+
+        headerText.add(
+                Box.createVerticalStrut(4)
+        );
+
+        headerText.add(
+                subtitle
+        );
 
 
-        topPanel.add(
-                titlePanel,
+        headerPanel.add(
+                headerText,
                 BorderLayout.WEST
         );
 
 
-        return topPanel;
-    }
+        mainPanel.add(
+                headerPanel,
+                BorderLayout.NORTH
+        );
 
 
-    // =====================================================
-    // FEATURE CARDS
-    // =====================================================
+        JPanel contentPanel =
+                new JPanel(
+                        new BorderLayout(
+                                20,
+                                20
+                        )
+                );
 
-    private JPanel createFeatureCards() {
+        contentPanel.setBackground(
+                BACKGROUND
+        );
 
-        JPanel cards =
+        contentPanel.setBorder(
+                new EmptyBorder(
+                        22,
+                        30,
+                        18,
+                        30
+                )
+        );
+
+        JPanel statsPanel =
                 new JPanel(
                         new GridLayout(
                                 1,
@@ -525,582 +251,419 @@ public class BorrowingGUI extends JFrame {
                         )
                 );
 
-        cards.setOpaque(false);
+        statsPanel.setOpaque(false);
 
-
-        cards.add(
-                createFeatureCard(
-                        "Borrow Book",
-                        "Issue an available book",
-                        PRIMARY
-                )
-        );
-
-
-        cards.add(
-                createFeatureCard(
-                        "Return Book",
-                        "Complete a borrowing record",
-                        GREEN
-                )
-        );
-
-
-        cards.add(
-                createFeatureCard(
-                        "Availability",
-                        "Check current book status",
-                        ORANGE
-                )
-        );
-
-
-        return cards;
-    }
-
-
-    private JPanel createFeatureCard(
-            String title,
-            String description,
-            Color color
-    ) {
-
-        RoundedPanel panel =
-                new RoundedPanel(
-                        18,
-                        CARD
-                );
-
-        panel.setLayout(
-                new BorderLayout(
-                        15,
-                        0
-                )
-        );
-
-        panel.setBorder(
-                new EmptyBorder(
-                        18,
-                        20,
-                        18,
-                        20
-                )
-        );
-
-
-        JPanel indicator =
-                new JPanel();
-
-        indicator.setPreferredSize(
+        statsPanel.setPreferredSize(
                 new Dimension(
-                        6,
-                        0
-                )
-        );
-
-        indicator.setBackground(color);
-
-
-        JPanel textPanel =
-                new JPanel();
-
-        textPanel.setOpaque(false);
-
-        textPanel.setLayout(
-                new BoxLayout(
-                        textPanel,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
-
-        JLabel titleLabel =
-                new JLabel(title);
-
-        titleLabel.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        16
-                )
-        );
-
-        titleLabel.setForeground(TEXT_DARK);
-
-
-        JLabel descLabel =
-                new JLabel(description);
-
-        descLabel.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        12
-                )
-        );
-
-        descLabel.setForeground(TEXT_GRAY);
-
-
-        textPanel.add(titleLabel);
-
-        textPanel.add(
-                Box.createVerticalStrut(7)
-        );
-
-        textPanel.add(descLabel);
-
-
-        panel.add(
-                indicator,
-                BorderLayout.WEST
-        );
-
-        panel.add(
-                textPanel,
-                BorderLayout.CENTER
-        );
-
-
-        return panel;
-    }
-
-
-    // =====================================================
-    // BORROWING FORM CARD
-    // =====================================================
-
-    private JPanel createBorrowingForm() {
-
-        RoundedPanel formCard =
-                new RoundedPanel(
-                        18,
-                        CARD
-                );
-
-        formCard.setLayout(
-                new BorderLayout(
                         0,
-                        18
-                )
-        );
-
-        formCard.setBorder(
-                new EmptyBorder(
-                        22,
-                        25,
-                        22,
-                        25
+                        100
                 )
         );
 
 
-        JPanel heading =
-                new JPanel();
+        // ACTIVE
 
-        heading.setOpaque(false);
+        activeBorrowingLabel =
+                createStatValueLabel();
 
-        heading.setLayout(
-                new BoxLayout(
-                        heading,
-                        BoxLayout.Y_AXIS
+        statsPanel.add(
+                createStatCard(
+                        "Active Borrowings",
+                        activeBorrowingLabel
                 )
         );
 
 
-        JLabel headingTitle =
-                new JLabel(
-                        "Book Transaction"
-                );
+        // TOTAL BORROWED
 
-        headingTitle.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        18
+        totalBorrowedLabel =
+                createStatValueLabel();
+
+        statsPanel.add(
+                createStatCard(
+                        "Total Borrowed",
+                        totalBorrowedLabel
                 )
         );
 
-        headingTitle.setForeground(TEXT_DARK);
 
+        // TOTAL RETURNED
 
-        JLabel headingDesc =
-                new JLabel(
-                        "Enter the member and book information below"
-                );
+        totalReturnedLabel =
+                createStatValueLabel();
 
-        headingDesc.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        12
+        statsPanel.add(
+                createStatCard(
+                        "Total Returned",
+                        totalReturnedLabel
                 )
         );
 
-        headingDesc.setForeground(TEXT_GRAY);
 
-
-        heading.add(headingTitle);
-
-        heading.add(
-                Box.createVerticalStrut(4)
-        );
-
-        heading.add(headingDesc);
-
-
-        formCard.add(
-                heading,
+        contentPanel.add(
+                statsPanel,
                 BorderLayout.NORTH
         );
 
 
-        JPanel inputs =
+        JPanel centerPanel =
                 new JPanel(
-                        new GridLayout(
-                                1,
-                                2,
+                        new BorderLayout(
                                 20,
                                 0
                         )
                 );
 
-        inputs.setOpaque(false);
+        centerPanel.setOpaque(false);
 
 
-        JPanel memberPanel =
-                createInputPanel(
-                        "Member ID"
-                );
+        JPanel transactionCard =
+                createCard();
 
-        memberIdField =
-                createTextField();
-
-        memberPanel.add(
-                memberIdField,
-                BorderLayout.CENTER
-        );
-
-
-        JPanel bookPanel =
-                createInputPanel(
-                        "Book ID"
-                );
-
-        bookIdField =
-                createTextField();
-
-        bookPanel.add(
-                bookIdField,
-                BorderLayout.CENTER
-        );
-
-
-        inputs.add(memberPanel);
-        inputs.add(bookPanel);
-
-
-        formCard.add(
-                inputs,
-                BorderLayout.CENTER
-        );
-
-
-        JPanel buttons =
-                new JPanel(
-                        new FlowLayout(
-                                FlowLayout.LEFT,
-                                10,
-                                0
-                        )
-                );
-
-        buttons.setOpaque(false);
-
-
-        RoundedButton borrowButton =
-                createActionButton(
-                        "Borrow Book",
-                        PRIMARY
-                );
-
-        RoundedButton returnButton =
-                createActionButton(
-                        "Return Book",
-                        GREEN
-                );
-
-        RoundedButton checkButton =
-                createActionButton(
-                        "Check Availability",
-                        ORANGE
-                );
-
-        RoundedButton recordsButton =
-                createActionButton(
-                        "View Records",
-                        PURPLE
-                );
-
-        RoundedButton clearButton =
-                createActionButton(
-                        "Clear",
-                        new Color(
-                                100,
-                                116,
-                                139
-                        )
-                );
-
-
-        buttons.add(borrowButton);
-        buttons.add(returnButton);
-        buttons.add(checkButton);
-        buttons.add(recordsButton);
-        buttons.add(clearButton);
-
-
-        formCard.add(
-                buttons,
-                BorderLayout.SOUTH
-        );
-
-
-        borrowButton.addActionListener(
-                e -> borrowBook()
-        );
-
-        returnButton.addActionListener(
-                e -> returnBook()
-        );
-
-        checkButton.addActionListener(
-                e -> checkAvailability()
-        );
-
-        recordsButton.addActionListener(
-                e -> viewRecords()
-        );
-
-        clearButton.addActionListener(
-                e -> clearFields()
-        );
-
-
-        return formCard;
-    }
-
-
-    // =====================================================
-    // INPUT PANEL
-    // =====================================================
-
-    private JPanel createInputPanel(
-            String labelText
-    ) {
-
-        JPanel panel =
-                new JPanel(
-                        new BorderLayout(
-                                0,
-                                8
-                        )
-                );
-
-        panel.setOpaque(false);
-
-
-        JLabel label =
-                new JLabel(labelText);
-
-        label.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        13
+        transactionCard.setPreferredSize(
+                new Dimension(
+                        470,
+                        0
                 )
         );
 
-        label.setForeground(TEXT_DARK);
+        transactionCard.setLayout(
+                new BorderLayout(
+                        0,
+                        18
+                )
+        );
 
 
-        panel.add(
-                label,
+        JLabel formTitle =
+                new JLabel(
+                        "Book Transaction"
+                );
+
+        formTitle.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        20
+                )
+        );
+
+        formTitle.setForeground(
+                TEXT_COLOR
+        );
+
+
+        transactionCard.add(
+                formTitle,
                 BorderLayout.NORTH
         );
 
 
-        return panel;
-    }
 
+        // INPUT FIELDS
+        JPanel formPanel =
+                new JPanel();
 
-    // =====================================================
-    // TEXT FIELD
-    // =====================================================
+        formPanel.setOpaque(false);
 
-    private JTextField createTextField() {
-
-        JTextField field =
-                new JTextField();
-
-        field.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        14
-                )
-        );
-
-        field.setPreferredSize(
-                new Dimension(
-                        200,
-                        42
-                )
-        );
-
-        field.setForeground(TEXT_DARK);
-
-        field.setBackground(
-                new Color(
-                        248,
-                        250,
-                        252
-                )
-        );
-
-        field.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                                BORDER
-                        ),
-                        new EmptyBorder(
-                                8,
-                                12,
-                                8,
-                                12
-                        )
+        formPanel.setLayout(
+                new BoxLayout(
+                        formPanel,
+                        BoxLayout.Y_AXIS
                 )
         );
 
 
-        return field;
-    }
+        // MEMBER ID
 
-
-    // =====================================================
-    // OUTPUT CARD
-    // =====================================================
-
-    private JPanel createOutputCard() {
-
-        RoundedPanel card =
-                new RoundedPanel(
-                        18,
-                        CARD
+        JLabel memberLabel =
+                createFieldLabel(
+                        "Member ID"
                 );
 
-        card.setLayout(
-                new BorderLayout(
-                        0,
-                        12
-                )
+        memberLabel.setAlignmentX(
+                Component.LEFT_ALIGNMENT
         );
 
-        card.setBorder(
-                new EmptyBorder(
-                        20,
-                        25,
-                        20,
-                        25
-                )
+        formPanel.add(
+                memberLabel
+        );
+
+        formPanel.add(
+                Box.createVerticalStrut(7)
         );
 
 
-        JPanel heading =
+        memberIdField =
+                createTextField();
+
+        memberIdField.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+        formPanel.add(
+                memberIdField
+        );
+
+
+        formPanel.add(
+                Box.createVerticalStrut(22)
+        );
+
+
+        // BOOK ID
+
+        JLabel bookLabel =
+                createFieldLabel(
+                        "Book ID"
+                );
+
+        bookLabel.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+        formPanel.add(
+                bookLabel
+        );
+
+        formPanel.add(
+                Box.createVerticalStrut(7)
+        );
+
+
+        bookIdField =
+                createTextField();
+
+        bookIdField.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+        formPanel.add(
+                bookIdField
+        );
+
+
+        JPanel formWrapper =
                 new JPanel(
                         new BorderLayout()
                 );
 
-        heading.setOpaque(false);
+        formWrapper.setOpaque(false);
+
+        formWrapper.add(
+                formPanel,
+                BorderLayout.NORTH
+        );
 
 
-        JLabel title =
+        transactionCard.add(
+                formWrapper,
+                BorderLayout.CENTER
+        );
+
+
+
+        // BUTTON PANEL
+        JPanel buttonPanel =
+                new JPanel(
+                        new GridLayout(
+                                3,
+                                2,
+                                10,
+                                10
+                        )
+                );
+
+        buttonPanel.setOpaque(false);
+
+        buttonPanel.setPreferredSize(
+                new Dimension(
+                        0,
+                        125
+                )
+        );
+
+
+        JButton borrowButton =
+                createColorButton(
+                        "Borrow Book",
+                        PRIMARY_COLOR,
+                        PRIMARY_HOVER
+                );
+
+
+        JButton returnButton =
+                createColorButton(
+                        "Return Book",
+                        GREEN_COLOR,
+                        GREEN_HOVER
+                );
+
+
+        JButton availabilityButton =
+                createColorButton(
+                        "Check Availability",
+                        ORANGE_COLOR,
+                        ORANGE_HOVER
+                );
+
+
+        JButton recordsButton =
+                createColorButton(
+                        "View Records",
+                        PURPLE_COLOR,
+                        PURPLE_HOVER
+                );
+
+
+        JButton clearButton =
+                createSecondaryButton(
+                        "Clear"
+                );
+
+
+        JButton closeButton =
+                createSecondaryButton(
+                        "Close"
+                );
+
+
+        buttonPanel.add(
+                borrowButton
+        );
+
+        buttonPanel.add(
+                returnButton
+        );
+
+        buttonPanel.add(
+                availabilityButton
+        );
+
+        buttonPanel.add(
+                recordsButton
+        );
+
+        buttonPanel.add(
+                clearButton
+        );
+
+        buttonPanel.add(
+                closeButton
+        );
+
+
+        transactionCard.add(
+                buttonPanel,
+                BorderLayout.SOUTH
+        );
+
+
+        centerPanel.add(
+                transactionCard,
+                BorderLayout.WEST
+        );
+
+
+
+        // ACTIVITY CARD
+        JPanel outputCard =
+                createCard();
+
+        outputCard.setLayout(
+                new BorderLayout(
+                        0,
+                        15
+                )
+        );
+
+
+        JPanel outputHeading =
+                new JPanel();
+
+        outputHeading.setOpaque(false);
+
+        outputHeading.setLayout(
+                new BoxLayout(
+                        outputHeading,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+
+        JLabel outputTitle =
                 new JLabel(
                         "Activity / Results"
                 );
 
-        title.setFont(
+        outputTitle.setFont(
                 new Font(
                         "Segoe UI",
                         Font.BOLD,
-                        17
+                        20
                 )
         );
 
-        title.setForeground(TEXT_DARK);
-
-
-        JLabel live =
-                new JLabel("LIVE");
-
-        live.setOpaque(true);
-
-        live.setBackground(
-                new Color(
-                        220,
-                        252,
-                        231
-                )
+        outputTitle.setForeground(
+                TEXT_COLOR
         );
 
-        live.setForeground(GREEN);
 
-        live.setFont(
+        JLabel outputSubtitle =
+                new JLabel(
+                        "Borrowing information and transaction results"
+                );
+
+        outputSubtitle.setFont(
                 new Font(
                         "Segoe UI",
-                        Font.BOLD,
-                        10
+                        Font.PLAIN,
+                        13
                 )
         );
 
-        live.setBorder(
-                new EmptyBorder(
-                        5,
-                        9,
-                        5,
-                        9
-                )
+        outputSubtitle.setForeground(
+                SUBTEXT_COLOR
         );
 
 
-        heading.add(
-                title,
-                BorderLayout.WEST
+        outputHeading.add(
+                outputTitle
         );
 
-        heading.add(
-                live,
-                BorderLayout.EAST
+        outputHeading.add(
+                Box.createVerticalStrut(4)
+        );
+
+        outputHeading.add(
+                outputSubtitle
+        );
+
+
+        outputCard.add(
+                outputHeading,
+                BorderLayout.NORTH
         );
 
 
         outputArea =
-                new JTextArea(
-                        8,
-                        40
-                );
+                new JTextArea();
 
-        outputArea.setEditable(false);
+        outputArea.setEditable(
+                false
+        );
 
         outputArea.setFont(
                 new Font(
                         "Monospaced",
                         Font.PLAIN,
-                        13
+                        14
                 )
         );
 
-        outputArea.setForeground(TEXT_DARK);
+        outputArea.setForeground(
+                TEXT_COLOR
+        );
 
         outputArea.setBackground(
                 new Color(
@@ -1110,16 +673,20 @@ public class BorrowingGUI extends JFrame {
                 )
         );
 
-        outputArea.setLineWrap(true);
+        outputArea.setLineWrap(
+                true
+        );
 
-        outputArea.setWrapStyleWord(true);
+        outputArea.setWrapStyleWord(
+                true
+        );
 
         outputArea.setBorder(
                 new EmptyBorder(
-                        12,
-                        12,
-                        12,
-                        12
+                        15,
+                        15,
+                        15,
+                        15
                 )
         );
 
@@ -1131,49 +698,31 @@ public class BorrowingGUI extends JFrame {
 
         scrollPane.setBorder(
                 BorderFactory.createLineBorder(
-                        BORDER
+                        BORDER_COLOR
                 )
         );
 
 
-        card.add(
-                heading,
-                BorderLayout.NORTH
-        );
-
-        card.add(
+        outputCard.add(
                 scrollPane,
                 BorderLayout.CENTER
         );
 
 
-        return card;
-    }
-
-
-    // =====================================================
-    // STATUS BAR
-    // =====================================================
-
-    private JPanel createStatusBar() {
-
-        JPanel panel =
-                new JPanel(
-                        new BorderLayout()
-                );
-
-        panel.setOpaque(false);
-
-        panel.setBorder(
-                new EmptyBorder(
-                        8,
-                        5,
-                        0,
-                        5
-                )
+        centerPanel.add(
+                outputCard,
+                BorderLayout.CENTER
         );
 
 
+        contentPanel.add(
+                centerPanel,
+                BorderLayout.CENTER
+        );
+
+
+
+        // STATUS BAR
         statusLabel =
                 new JLabel(
                         "System ready"
@@ -1183,129 +732,64 @@ public class BorrowingGUI extends JFrame {
                 new Font(
                         "Segoe UI",
                         Font.PLAIN,
-                        12
+                        13
                 )
         );
 
-        statusLabel.setForeground(TEXT_GRAY);
-
-
-        JLabel moduleLabel =
-                new JLabel(
-                        "Borrowing Module"
-                );
-
-        moduleLabel.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        12
-                )
+        statusLabel.setForeground(
+                SUBTEXT_COLOR
         );
 
-        moduleLabel.setForeground(TEXT_GRAY);
 
-
-        panel.add(
+        contentPanel.add(
                 statusLabel,
-                BorderLayout.WEST
-        );
-
-        panel.add(
-                moduleLabel,
-                BorderLayout.EAST
+                BorderLayout.SOUTH
         );
 
 
-        return panel;
+        mainPanel.add(
+                contentPanel,
+                BorderLayout.CENTER
+        );
+
+
+        setContentPane(
+                mainPanel
+        );
+
+        borrowButton.addActionListener(
+                e -> borrowBook()
+        );
+
+
+        returnButton.addActionListener(
+                e -> returnBook()
+        );
+
+
+        availabilityButton.addActionListener(
+                e -> checkAvailability()
+        );
+
+
+        recordsButton.addActionListener(
+                e -> viewRecords()
+        );
+
+
+        clearButton.addActionListener(
+                e -> clearFields()
+        );
+
+
+        closeButton.addActionListener(
+                e -> dispose()
+        );
     }
 
 
-    // =====================================================
-    // SIDEBAR BUTTON
-    // =====================================================
 
-    private JButton createSidebarButton(
-            String text
-    ) {
-
-        JButton button =
-                new JButton(text);
-
-        button.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        14
-                )
-        );
-
-        button.setForeground(
-                new Color(
-                        220,
-                        228,
-                        240
-                )
-        );
-
-        button.setBackground(SIDEBAR);
-
-        button.setHorizontalAlignment(
-                SwingConstants.LEFT
-        );
-
-        button.setMaximumSize(
-                new Dimension(
-                        Integer.MAX_VALUE,
-                        42
-                )
-        );
-
-        button.setFocusPainted(false);
-
-        button.setBorderPainted(false);
-
-        button.setCursor(
-                new Cursor(
-                        Cursor.HAND_CURSOR
-                )
-        );
-
-
-        return button;
-    }
-
-
-    // =====================================================
-    // ACTION BUTTON
-    // =====================================================
-
-    private RoundedButton createActionButton(
-            String text,
-            Color color
-    ) {
-
-        RoundedButton button =
-                new RoundedButton(
-                        text,
-                        color
-                );
-
-        button.setPreferredSize(
-                new Dimension(
-                        135,
-                        40
-                )
-        );
-
-        return button;
-    }
-
-
-    // =====================================================
     // BORROW BOOK
-    // =====================================================
-
     private void borrowBook() {
 
         Integer memberId =
@@ -1313,6 +797,7 @@ public class BorrowingGUI extends JFrame {
                         memberIdField.getText(),
                         "Member ID"
                 );
+
 
         if (memberId == null) {
             return;
@@ -1324,6 +809,7 @@ public class BorrowingGUI extends JFrame {
                         bookIdField.getText(),
                         "Book ID"
                 );
+
 
         if (bookId == null) {
             return;
@@ -1339,7 +825,7 @@ public class BorrowingGUI extends JFrame {
 
         outputArea.setText(
                 "BORROW BOOK\n"
-                        + "----------------------------------------\n\n"
+                        + "========================================\n\n"
                         + "Member ID : "
                         + memberId
                         + "\n"
@@ -1350,14 +836,17 @@ public class BorrowingGUI extends JFrame {
         );
 
 
-        statusLabel.setText(result);
+        statusLabel.setText(
+                result
+        );
+
+
+        updateStatistics();
     }
 
 
-    // =====================================================
-    // RETURN BOOK
-    // =====================================================
 
+    // RETURN BOOK
     private void returnBook() {
 
         Integer memberId =
@@ -1365,6 +854,7 @@ public class BorrowingGUI extends JFrame {
                         memberIdField.getText(),
                         "Member ID"
                 );
+
 
         if (memberId == null) {
             return;
@@ -1376,6 +866,7 @@ public class BorrowingGUI extends JFrame {
                         bookIdField.getText(),
                         "Book ID"
                 );
+
 
         if (bookId == null) {
             return;
@@ -1391,7 +882,7 @@ public class BorrowingGUI extends JFrame {
 
         outputArea.setText(
                 "RETURN BOOK\n"
-                        + "----------------------------------------\n\n"
+                        + "========================================\n\n"
                         + "Member ID : "
                         + memberId
                         + "\n"
@@ -1402,14 +893,17 @@ public class BorrowingGUI extends JFrame {
         );
 
 
-        statusLabel.setText(result);
+        statusLabel.setText(
+                result
+        );
+
+
+        updateStatistics();
     }
 
 
-    // =====================================================
-    // CHECK AVAILABILITY
-    // =====================================================
 
+    // CHECK AVAILABILITY
     private void checkAvailability() {
 
         Integer bookId =
@@ -1418,35 +912,39 @@ public class BorrowingGUI extends JFrame {
                         "Book ID"
                 );
 
+
         if (bookId == null) {
             return;
         }
 
 
         Book book =
-                manager.findBook(bookId);
+                manager.findBook(
+                        bookId
+                );
 
 
         if (book == null) {
 
             outputArea.setText(
                     "BOOK AVAILABILITY\n"
-                            + "----------------------------------------\n\n"
+                            + "========================================\n\n"
                             + "Book ID : "
                             + bookId
                             + "\n\n"
                             + "Book not found."
             );
 
+
             statusLabel.setText(
-                    "Book not found"
+                    "Book not found."
             );
 
             return;
         }
 
 
-        String status =
+        String availability =
                 book.isAvailable()
                         ? "AVAILABLE"
                         : "BORROWED";
@@ -1454,39 +952,36 @@ public class BorrowingGUI extends JFrame {
 
         outputArea.setText(
                 "BOOK AVAILABILITY\n"
-                        + "----------------------------------------\n\n"
-                        + "Book ID         : "
+                        + "========================================\n\n"
+                        + "Book ID        : "
                         + book.getBookId()
                         + "\n"
-                        + "Title           : "
+                        + "Title          : "
                         + book.getTitle()
                         + "\n"
-                        + "Author          : "
+                        + "Author         : "
                         + book.getAuthor()
                         + "\n"
-                        + "Category        : "
+                        + "Category       : "
                         + book.getCategory()
                         + "\n"
-                        + "Published Year  : "
+                        + "Published Year : "
                         + book.getPublishedYear()
                         + "\n\n"
-                        + "Current Status  : "
-                        + status
+                        + "Current Status : "
+                        + availability
         );
 
 
         statusLabel.setText(
-                "Availability checked"
+                "Availability checked."
         );
     }
 
 
-    // =====================================================
+
     // VIEW RECORDS
-    // =====================================================
-
     private void viewRecords() {
-
         outputArea.setText(
                 "BORROWING RECORDS\n"
                         + "========================================\n\n"
@@ -1495,14 +990,39 @@ public class BorrowingGUI extends JFrame {
 
 
         statusLabel.setText(
-                "Showing borrowing records"
+                "Showing borrowing records."
         );
+
+
+        updateStatistics();
     }
 
 
-    // =====================================================
-    // CLEAR
-    // =====================================================
+
+    // UPDATE STATISTICS
+    private void updateStatistics() {
+
+        activeBorrowingLabel.setText(
+                String.valueOf(
+                        manager.getActiveBorrowingCount()
+                )
+        );
+
+
+        totalBorrowedLabel.setText(
+                String.valueOf(
+                        manager.getTotalBorrowingCount()
+                )
+        );
+
+
+        totalReturnedLabel.setText(
+                String.valueOf(
+                        manager.getReturnedBorrowingCount()
+                )
+        );
+    }
+
 
     private void clearFields() {
 
@@ -1516,20 +1036,20 @@ public class BorrowingGUI extends JFrame {
                 "System ready"
         );
 
-        memberIdField.requestFocus();
+
+        memberIdField.requestFocusInWindow();
     }
 
 
-    // =====================================================
-    // ID VALIDATION
-    // =====================================================
 
+    // VALIDATE ID
     private Integer parseId(
             String text,
             String fieldName
     ) {
 
         text = text.trim();
+
 
         if (text.isEmpty()) {
 
@@ -1547,12 +1067,15 @@ public class BorrowingGUI extends JFrame {
         try {
 
             int value =
-                    Integer.parseInt(text);
+                    Integer.parseInt(
+                            text
+                    );
+
 
             if (value <= 0) {
-
                 throw new NumberFormatException();
             }
+
 
             return value;
 
@@ -1560,177 +1083,380 @@ public class BorrowingGUI extends JFrame {
 
             JOptionPane.showMessageDialog(
                     this,
-                    fieldName + " must be a positive number.",
+                    fieldName
+                            + " must be a positive number.",
                     "Invalid Input",
                     JOptionPane.ERROR_MESSAGE
             );
+
 
             return null;
         }
     }
 
 
-    // =====================================================
-    // ROUNDED PANEL
-    // =====================================================
 
-    static class RoundedPanel
-            extends JPanel {
+    // STAT CARD
+    private JPanel createStatCard(
+            String title,
+            JLabel valueLabel
+    ) {
 
-        private final int radius;
-        private final Color backgroundColor;
+        JPanel card =
+                new JPanel();
 
+        card.setBackground(
+                CARD_COLOR
+        );
 
-        public RoundedPanel(
-                int radius,
-                Color backgroundColor
-        ) {
-
-            this.radius =
-                    radius;
-
-            this.backgroundColor =
-                    backgroundColor;
-
-            setOpaque(false);
-        }
+        card.setLayout(
+                new BoxLayout(
+                        card,
+                        BoxLayout.Y_AXIS
+                )
+        );
 
 
-        @Override
-        protected void paintComponent(
-                Graphics g
-        ) {
-
-            super.paintComponent(g);
-
-
-            Graphics2D g2 =
-                    (Graphics2D) g.create();
-
-
-            g2.setRenderingHint(
-                    RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON
-            );
+        card.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER_COLOR
+                        ),
+                        new EmptyBorder(
+                                16,
+                                20,
+                                16,
+                                20
+                        )
+                )
+        );
 
 
-            g2.setColor(
-                    backgroundColor
-            );
+        JLabel titleLabel =
+                new JLabel(
+                        title
+                );
+
+        titleLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        titleLabel.setForeground(
+                SUBTEXT_COLOR
+        );
 
 
-            g2.fillRoundRect(
-                    0,
-                    0,
-                    getWidth(),
-                    getHeight(),
-                    radius,
-                    radius
-            );
+        card.add(
+                titleLabel
+        );
+
+        card.add(
+                Box.createVerticalStrut(7)
+        );
+
+        card.add(
+                valueLabel
+        );
 
 
-            g2.dispose();
-        }
+        return card;
     }
 
 
-    // =====================================================
-    // ROUNDED BUTTON
-    // =====================================================
 
-    static class RoundedButton
-            extends JButton {
+    // STAT VALUE
+    private JLabel createStatValueLabel() {
 
-        private final Color buttonColor;
-
-
-        public RoundedButton(
-                String text,
-                Color buttonColor
-        ) {
-
-            super(text);
-
-            this.buttonColor =
-                    buttonColor;
-
-
-            setForeground(Color.WHITE);
-
-            setFont(
-                    new Font(
-                            "Segoe UI",
-                            Font.BOLD,
-                            12
-                    )
-            );
-
-
-            setFocusPainted(false);
-
-            setBorderPainted(false);
-
-            setContentAreaFilled(false);
-
-            setCursor(
-                    new Cursor(
-                            Cursor.HAND_CURSOR
-                    )
-            );
-        }
-
-
-        @Override
-        protected void paintComponent(
-                Graphics g
-        ) {
-
-            Graphics2D g2 =
-                    (Graphics2D) g.create();
-
-
-            g2.setRenderingHint(
-                    RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON
-            );
-
-
-            if (getModel().isPressed()) {
-
-                g2.setColor(
-                        buttonColor.darker()
+        JLabel label =
+                new JLabel(
+                        "0"
                 );
 
-            } else if (
-                    getModel().isRollover()
-            ) {
+        label.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        27
+                )
+        );
 
-                g2.setColor(
-                        buttonColor.brighter()
+        label.setForeground(
+                TEXT_COLOR
+        );
+
+
+        return label;
+    }
+
+    private JPanel createCard() {
+
+        JPanel card =
+                new JPanel();
+
+        card.setBackground(
+                CARD_COLOR
+        );
+
+
+        card.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER_COLOR
+                        ),
+                        new EmptyBorder(
+                                22,
+                                24,
+                                22,
+                                24
+                        )
+                )
+        );
+
+
+        return card;
+    }
+
+
+    private JLabel createFieldLabel(
+            String text
+    ) {
+
+        JLabel label =
+                new JLabel(
+                        text
                 );
 
-            } else {
+        label.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        13
+                )
+        );
 
-                g2.setColor(
-                        buttonColor
+        label.setForeground(
+                TEXT_COLOR
+        );
+
+
+        return label;
+    }
+
+
+    private JTextField createTextField() {
+
+        JTextField field =
+                new JTextField();
+
+
+        field.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        14
+                )
+        );
+
+
+        field.setPreferredSize(
+                new Dimension(
+                        380,
+                        42
+                )
+        );
+
+
+        field.setMaximumSize(
+                new Dimension(
+                        Integer.MAX_VALUE,
+                        42
+                )
+        );
+
+
+        field.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER_COLOR
+                        ),
+                        new EmptyBorder(
+                                7,
+                                10,
+                                7,
+                                10
+                        )
+                )
+        );
+
+
+        return field;
+    }
+
+
+    private JButton createColorButton(
+            String text,
+            Color normalColor,
+            Color hoverColor
+    ) {
+
+        JButton button =
+                new JButton(
+                        text
                 );
-            }
 
 
-            g2.fillRoundRect(
-                    0,
-                    0,
-                    getWidth(),
-                    getHeight(),
-                    14,
-                    14
-            );
+        button.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        13
+                )
+        );
+
+        button.setForeground(
+                Color.WHITE
+        );
+
+        button.setBackground(
+                normalColor
+        );
+
+        button.setFocusPainted(
+                false
+        );
+
+        button.setBorderPainted(
+                false
+        );
+
+        button.setOpaque(
+                true
+        );
+
+        button.setContentAreaFilled(
+                true
+        );
+
+        button.setCursor(
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
 
 
-            g2.dispose();
+        button.addMouseListener(
+                new MouseAdapter() {
+
+                    @Override
+                    public void mouseEntered(
+                            MouseEvent e
+                    ) {
+
+                        button.setBackground(
+                                hoverColor
+                        );
+                    }
 
 
-            super.paintComponent(g);
-        }
+                    @Override
+                    public void mouseExited(
+                            MouseEvent e
+                    ) {
+
+                        button.setBackground(
+                                normalColor
+                        );
+                    }
+                }
+        );
+
+
+        return button;
+    }
+
+
+    private JButton createSecondaryButton(
+            String text
+    ) {
+
+        JButton button =
+                new JButton(
+                        text
+                );
+
+
+        button.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        13
+                )
+        );
+
+        button.setForeground(
+                TEXT_COLOR
+        );
+
+        button.setBackground(
+                SECONDARY_COLOR
+        );
+
+        button.setFocusPainted(
+                false
+        );
+
+        button.setOpaque(
+                true
+        );
+
+        button.setContentAreaFilled(
+                true
+        );
+
+        button.setCursor(
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        button.setBorder(
+                BorderFactory.createLineBorder(
+                        BORDER_COLOR
+                )
+        );
+
+
+        button.addMouseListener(
+                new MouseAdapter() {
+
+                    @Override
+                    public void mouseEntered(
+                            MouseEvent e
+                    ) {
+
+                        button.setBackground(
+                                SECONDARY_HOVER
+                        );
+                    }
+
+
+                    @Override
+                    public void mouseExited(
+                            MouseEvent e
+                    ) {
+
+                        button.setBackground(
+                                SECONDARY_COLOR
+                        );
+                    }
+                }
+        );
+
+
+        return button;
     }
 }

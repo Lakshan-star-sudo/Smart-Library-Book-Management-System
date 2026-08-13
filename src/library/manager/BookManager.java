@@ -205,4 +205,21 @@ public class BookManager {
             );
         }
     }
+    public boolean updateAvailability(
+            int bookId,
+            boolean available
+    ) {
+
+        Book book = searchBook(bookId);
+
+        if (book == null) {
+            return false;
+        }
+
+        book.setAvailable(available);
+
+        saveBooks();
+
+        return true;
+    }
 }

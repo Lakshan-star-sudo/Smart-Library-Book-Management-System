@@ -1,6 +1,10 @@
 package library.manager;
 
-public class BorrowingRecord {
+import java.io.Serializable;
+
+public class BorrowingRecord implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String memberId;
     private String bookId;
@@ -8,9 +12,11 @@ public class BorrowingRecord {
     private String returnDate;
     private String status;
 
-    public BorrowingRecord(String memberId,
-                           String bookId,
-                           String borrowDate) {
+    public BorrowingRecord(
+            String memberId,
+            String bookId,
+            String borrowDate
+    ) {
 
         this.memberId = memberId;
         this.bookId = bookId;
@@ -40,16 +46,18 @@ public class BorrowingRecord {
     }
 
     public void returnBook(String returnDate) {
+
         this.returnDate = returnDate;
         this.status = "Returned";
     }
 
     @Override
     public String toString() {
-        return "Member ID: " + memberId +
-                " | Book ID: " + bookId +
-                " | Borrow Date: " + borrowDate +
-                " | Return Date: " + returnDate +
-                " | Status: " + status;
+
+        return "Member ID: " + memberId
+                + " | Book ID: " + bookId
+                + " | Borrow Date: " + borrowDate
+                + " | Return Date: " + returnDate
+                + " | Status: " + status;
     }
 }
