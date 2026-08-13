@@ -1,6 +1,7 @@
 package library.manager;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 
 public class BorrowingRecord implements Serializable {
 
@@ -9,6 +10,7 @@ public class BorrowingRecord implements Serializable {
     private String memberId;
     private String bookId;
     private String borrowDate;
+    private String dueDate;
     private String returnDate;
     private String status;
 
@@ -21,6 +23,12 @@ public class BorrowingRecord implements Serializable {
         this.memberId = memberId;
         this.bookId = bookId;
         this.borrowDate = borrowDate;
+
+        this.dueDate =
+                LocalDate.parse(borrowDate)
+                        .plusDays(14)
+                        .toString();
+
         this.returnDate = "-";
         this.status = "Borrowed";
     }
@@ -37,6 +45,20 @@ public class BorrowingRecord implements Serializable {
         return borrowDate;
     }
 
+    public String getDueDate() {
+
+        if (dueDate == null
+                || dueDate.trim().isEmpty()) {
+
+            dueDate =
+                    LocalDate.parse(borrowDate)
+                            .plusDays(14)
+                            .toString();
+        }
+
+        return dueDate;
+    }
+
     public String getReturnDate() {
         return returnDate;
     }
@@ -45,10 +67,28 @@ public class BorrowingRecord implements Serializable {
         return status;
     }
 
-    public void returnBook(String returnDate) {
+    public void returnBook(
+            String returnDate
+    ) {
 
         this.returnDate = returnDate;
         this.status = "Returned";
+    }
+
+    public boolean isOverdue() {
+
+        if (!status.equalsIgnoreCase("Borrowed")) {
+            return false;
+        }
+
+        LocalDate due =
+                LocalDate.parse(
+                        getDueDate()
+                );
+
+        return due.isBefore(
+                LocalDate.now()
+        );
     }
 
     @Override
@@ -57,6 +97,7 @@ public class BorrowingRecord implements Serializable {
         return "Member ID: " + memberId
                 + " | Book ID: " + bookId
                 + " | Borrow Date: " + borrowDate
+                + " | Due Date: " + getDueDate()
                 + " | Return Date: " + returnDate
                 + " | Status: " + status;
     }

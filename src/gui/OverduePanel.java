@@ -1,295 +1,777 @@
 package gui;
 
+import library.manager.BorrowingManager;
+import library.manager.BorrowingRecord;
+import library.model.Book;
 import overdue.OverdueManager;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class OverduePanel extends JFrame {
 
-    private final Color BACKGROUND = new Color(245, 247, 250);
-    private final Color CARD_COLOR = Color.WHITE;
-    private final Color TEXT_COLOR = new Color(35, 45, 55);
-    private final Color SUBTEXT_COLOR = new Color(100, 110, 120);
-    private final Color BUTTON_COLOR = new Color(45, 95, 160);
+    private static final Color BACKGROUND =
+            new Color(245, 247, 250);
 
-    private JTextArea resultArea;
+    private static final Color HEADER_COLOR =
+            new Color(31, 41, 55);
 
-    public OverduePanel() {
+    private static final Color CARD_COLOR =
+            Color.WHITE;
 
-        setTitle("Overdue Book Management");
-        setSize(700, 600);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setResizable(false);
+    private static final Color PRIMARY_COLOR =
+            new Color(37, 99, 235);
 
-        JPanel mainPanel =
-                new JPanel(new BorderLayout(20, 20));
+    private static final Color TEXT_COLOR =
+            new Color(31, 41, 55);
 
-        mainPanel.setBackground(BACKGROUND);
+    private static final Color SUBTEXT_COLOR =
+            new Color(107, 114, 128);
 
-        mainPanel.setBorder(
-                new EmptyBorder(30, 40, 30, 40)
+    private static final Color BORDER_COLOR =
+            new Color(229, 231, 235);
+
+    private static final Color RED_COLOR =
+            new Color(220, 38, 38);
+
+
+    private final BorrowingManager borrowingManager;
+    private final OverdueManager overdueManager;
+
+    private JTable overdueTable;
+    private DefaultTableModel tableModel;
+
+    private JLabel overdueCountLabel;
+    private JLabel statusLabel;
+
+
+    public OverduePanel(
+            BorrowingManager borrowingManager
+    ) {
+
+        this.borrowingManager =
+                borrowingManager;
+
+        this.overdueManager =
+                new OverdueManager(
+                        borrowingManager
+                );
+
+        setTitle(
+                "Smart Library - Overdue Books"
         );
 
-        // ================= HEADER =================
+        setDefaultCloseOperation(
+                JFrame.DISPOSE_ON_CLOSE
+        );
 
-        JPanel headerPanel = new JPanel();
+        setExtendedState(
+                JFrame.MAXIMIZED_BOTH
+        );
 
-        headerPanel.setBackground(BACKGROUND);
+        setMinimumSize(
+                new Dimension(
+                        1000,
+                        650
+                )
+        );
 
-        headerPanel.setLayout(
+        createUI();
+
+        refreshOverdueTable();
+    }
+
+
+    private void createUI() {
+
+        JPanel mainPanel =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        mainPanel.setBackground(
+                BACKGROUND
+        );
+
+
+        // =========================
+        // HEADER
+        // =========================
+
+        JPanel headerPanel =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        headerPanel.setBackground(
+                HEADER_COLOR
+        );
+
+        headerPanel.setBorder(
+                new EmptyBorder(
+                        22,
+                        35,
+                        22,
+                        35
+                )
+        );
+
+
+        JPanel titlePanel =
+                new JPanel();
+
+        titlePanel.setOpaque(false);
+
+        titlePanel.setLayout(
                 new BoxLayout(
-                        headerPanel,
+                        titlePanel,
                         BoxLayout.Y_AXIS
                 )
         );
 
+
         JLabel titleLabel =
-                new JLabel("OVERDUE BOOKS");
+                new JLabel(
+                        "Overdue Books"
+                );
 
         titleLabel.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.BOLD,
                         28
                 )
         );
 
-        titleLabel.setForeground(TEXT_COLOR);
-
-        titleLabel.setAlignmentX(
-                Component.CENTER_ALIGNMENT
+        titleLabel.setForeground(
+                Color.WHITE
         );
+
 
         JLabel subtitleLabel =
                 new JLabel(
-                        "Track books that have passed their due date"
+                        "Monitor borrowed books that have passed their due date"
                 );
 
         subtitleLabel.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.PLAIN,
                         14
                 )
         );
 
         subtitleLabel.setForeground(
-                SUBTEXT_COLOR
+                new Color(
+                        209,
+                        213,
+                        219
+                )
         );
 
-        subtitleLabel.setAlignmentX(
-                Component.CENTER_ALIGNMENT
+
+        titlePanel.add(
+                titleLabel
         );
 
-        headerPanel.add(titleLabel);
+        titlePanel.add(
+                Box.createVerticalStrut(4)
+        );
+
+        titlePanel.add(
+                subtitleLabel
+        );
+
 
         headerPanel.add(
-                Box.createVerticalStrut(6)
+                titlePanel,
+                BorderLayout.WEST
         );
 
-        headerPanel.add(subtitleLabel);
 
         mainPanel.add(
                 headerPanel,
                 BorderLayout.NORTH
         );
 
-        // ================= BUTTON =================
 
-        JButton checkButton =
-                new JButton("CHECK OVERDUE BOOKS");
+        // =========================
+        // CONTENT
+        // =========================
 
-        checkButton.setFont(
+        JPanel contentPanel =
+                new JPanel(
+                        new BorderLayout(
+                                20,
+                                20
+                        )
+                );
+
+        contentPanel.setBackground(
+                BACKGROUND
+        );
+
+        contentPanel.setBorder(
+                new EmptyBorder(
+                        25,
+                        30,
+                        20,
+                        30
+                )
+        );
+
+
+        // =========================
+        // TOP AREA
+        // =========================
+
+        JPanel topPanel =
+                new JPanel(
+                        new BorderLayout(
+                                20,
+                                0
+                        )
+                );
+
+        topPanel.setOpaque(false);
+
+
+        JPanel countCard =
+                createCountCard();
+
+        topPanel.add(
+                countCard,
+                BorderLayout.WEST
+        );
+
+
+        JButton refreshButton =
+                new JButton(
+                        "Refresh Overdue Books"
+                );
+
+        refreshButton.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.BOLD,
+                        13
+                )
+        );
+
+        refreshButton.setForeground(
+                Color.WHITE
+        );
+
+        refreshButton.setBackground(
+                PRIMARY_COLOR
+        );
+
+        refreshButton.setFocusPainted(
+                false
+        );
+
+        refreshButton.setBorderPainted(
+                false
+        );
+
+        refreshButton.setOpaque(
+                true
+        );
+
+        refreshButton.setContentAreaFilled(
+                true
+        );
+
+        refreshButton.setCursor(
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        refreshButton.setPreferredSize(
+                new Dimension(
+                        190,
+                        42
+                )
+        );
+
+
+        JPanel refreshWrapper =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.RIGHT,
+                                0,
+                                20
+                        )
+                );
+
+        refreshWrapper.setOpaque(false);
+
+        refreshWrapper.add(
+                refreshButton
+        );
+
+
+        topPanel.add(
+                refreshWrapper,
+                BorderLayout.EAST
+        );
+
+
+        contentPanel.add(
+                topPanel,
+                BorderLayout.NORTH
+        );
+
+
+        // =========================
+        // TABLE CARD
+        // =========================
+
+        JPanel tableCard =
+                new JPanel(
+                        new BorderLayout(
+                                0,
+                                15
+                        )
+                );
+
+        tableCard.setBackground(
+                CARD_COLOR
+        );
+
+        tableCard.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER_COLOR
+                        ),
+                        new EmptyBorder(
+                                22,
+                                24,
+                                22,
+                                24
+                        )
+                )
+        );
+
+
+        JPanel tableHeading =
+                new JPanel();
+
+        tableHeading.setOpaque(false);
+
+        tableHeading.setLayout(
+                new BoxLayout(
+                        tableHeading,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+
+        JLabel tableTitle =
+                new JLabel(
+                        "Current Overdue Records"
+                );
+
+        tableTitle.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        20
+                )
+        );
+
+        tableTitle.setForeground(
+                TEXT_COLOR
+        );
+
+
+        JLabel tableSubtitle =
+                new JLabel(
+                        "Books are overdue when the due date has passed and the book is not returned"
+                );
+
+        tableSubtitle.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        tableSubtitle.setForeground(
+                SUBTEXT_COLOR
+        );
+
+
+        tableHeading.add(
+                tableTitle
+        );
+
+        tableHeading.add(
+                Box.createVerticalStrut(4)
+        );
+
+        tableHeading.add(
+                tableSubtitle
+        );
+
+
+        tableCard.add(
+                tableHeading,
+                BorderLayout.NORTH
+        );
+
+
+        // =========================
+        // TABLE
+        // =========================
+
+        String[] columns = {
+                "Member ID",
+                "Book ID",
+                "Book Title",
+                "Borrow Date",
+                "Due Date",
+                "Status"
+        };
+
+
+        tableModel =
+                new DefaultTableModel(
+                        columns,
+                        0
+                ) {
+
+                    @Override
+                    public boolean isCellEditable(
+                            int row,
+                            int column
+                    ) {
+
+                        return false;
+                    }
+                };
+
+
+        overdueTable =
+                new JTable(
+                        tableModel
+                );
+
+
+        overdueTable.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
                         14
                 )
         );
 
-        checkButton.setForeground(Color.WHITE);
-
-        checkButton.setBackground(
-                BUTTON_COLOR
+        overdueTable.setRowHeight(
+                36
         );
 
-        checkButton.setFocusPainted(false);
-
-        checkButton.setCursor(
-                new Cursor(Cursor.HAND_CURSOR)
+        overdueTable.setFillsViewportHeight(
+                true
         );
 
-        checkButton.setBorder(
-                BorderFactory.createEmptyBorder(
-                        12, 25, 12, 25
-                )
+        overdueTable.setShowVerticalLines(
+                false
         );
 
-        // ================= RESULT AREA =================
-
-        resultArea = new JTextArea();
-
-        resultArea.setEditable(false);
-
-        resultArea.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.PLAIN,
-                        16
-                )
+        overdueTable.setGridColor(
+                BORDER_COLOR
         );
 
-        resultArea.setForeground(TEXT_COLOR);
-
-        resultArea.setBackground(
-                CARD_COLOR
+        overdueTable.setAutoCreateRowSorter(
+                true
         );
 
-        resultArea.setLineWrap(true);
 
-        resultArea.setWrapStyleWord(true);
+        overdueTable
+                .getTableHeader()
+                .setFont(
+                        new Font(
+                                "Segoe UI",
+                                Font.BOLD,
+                                14
+                        )
+                );
 
-        resultArea.setBorder(
-                new EmptyBorder(
-                        20, 25, 20, 25
-                )
-        );
+        overdueTable
+                .getTableHeader()
+                .setBackground(
+                        new Color(
+                                249,
+                                250,
+                                251
+                        )
+                );
 
-        resultArea.setText(
-                "Click \"CHECK OVERDUE BOOKS\" "
-                        + "to view overdue books."
-        );
+        overdueTable
+                .getTableHeader()
+                .setForeground(
+                        TEXT_COLOR
+                );
+
+        overdueTable
+                .getTableHeader()
+                .setPreferredSize(
+                        new Dimension(
+                                0,
+                                40
+                        )
+                );
+
 
         JScrollPane scrollPane =
-                new JScrollPane(resultArea);
+                new JScrollPane(
+                        overdueTable
+                );
 
         scrollPane.setBorder(
                 BorderFactory.createLineBorder(
-                        new Color(225, 230, 235)
+                        BORDER_COLOR
                 )
         );
 
-        // ================= CENTER PANEL =================
 
-        JPanel centerPanel =
-                new JPanel(
-                        new BorderLayout(15, 15)
-                );
-
-        centerPanel.setBackground(
-                BACKGROUND
-        );
-
-        JPanel buttonPanel =
-                new JPanel();
-
-        buttonPanel.setBackground(
-                BACKGROUND
-        );
-
-        buttonPanel.add(checkButton);
-
-        centerPanel.add(
-                buttonPanel,
-                BorderLayout.NORTH
-        );
-
-        centerPanel.add(
+        tableCard.add(
                 scrollPane,
                 BorderLayout.CENTER
         );
 
-        mainPanel.add(
-                centerPanel,
+
+        contentPanel.add(
+                tableCard,
                 BorderLayout.CENTER
         );
 
-        // ================= BUTTON ACTION =================
 
-        checkButton.addActionListener(
-                e -> showOverdueBooks()
-        );
+        // =========================
+        // STATUS
+        // =========================
 
-        add(mainPanel);
-    }
-
-    // ================= OVERDUE LOGIC =================
-
-    private void showOverdueBooks() {
-
-        OverdueManager manager =
-                new OverdueManager();
-
-        List<String> borrowedBooks =
-                new ArrayList<>();
-
-        borrowedBooks.add(
-                "Data Structures|Kamal|2026-08-05"
-        );
-
-        borrowedBooks.add(
-                "Java Programming|Nimal|2026-08-20"
-        );
-
-        borrowedBooks.add(
-                "Database Systems|Saman|2026-08-01"
-        );
-
-        borrowedBooks.add(
-                "Software Engineering|Amal|2026-08-25"
-        );
-
-        List<String> overdueBooks =
-                manager.findOverdueBooks(
-                        borrowedBooks
+        statusLabel =
+                new JLabel(
+                        "Ready"
                 );
 
-        resultArea.setText("");
+        statusLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
 
-        if (overdueBooks.isEmpty()) {
+        statusLabel.setForeground(
+                SUBTEXT_COLOR
+        );
 
-            resultArea.setText(
-                    "NO OVERDUE BOOKS\n\n"
-                            + "All borrowed books "
-                            + "are within their due dates."
+
+        contentPanel.add(
+                statusLabel,
+                BorderLayout.SOUTH
+        );
+
+
+        mainPanel.add(
+                contentPanel,
+                BorderLayout.CENTER
+        );
+
+
+        setContentPane(
+                mainPanel
+        );
+
+
+        refreshButton.addActionListener(
+                e -> refreshOverdueTable()
+        );
+    }
+
+
+    // =========================
+    // COUNT CARD
+    // =========================
+
+    private JPanel createCountCard() {
+
+        JPanel card =
+                new JPanel();
+
+        card.setPreferredSize(
+                new Dimension(
+                        260,
+                        95
+                )
+        );
+
+        card.setBackground(
+                CARD_COLOR
+        );
+
+        card.setLayout(
+                new BoxLayout(
+                        card,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        card.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER_COLOR
+                        ),
+                        new EmptyBorder(
+                                14,
+                                18,
+                                14,
+                                18
+                        )
+                )
+        );
+
+
+        JLabel title =
+                new JLabel(
+                        "Overdue Books"
+                );
+
+        title.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        title.setForeground(
+                SUBTEXT_COLOR
+        );
+
+
+        overdueCountLabel =
+                new JLabel(
+                        "0"
+                );
+
+        overdueCountLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        28
+                )
+        );
+
+        overdueCountLabel.setForeground(
+                RED_COLOR
+        );
+
+
+        card.add(
+                title
+        );
+
+        card.add(
+                Box.createVerticalStrut(5)
+        );
+
+        card.add(
+                overdueCountLabel
+        );
+
+
+        return card;
+    }
+
+
+    // =========================
+    // REFRESH OVERDUE TABLE
+    // =========================
+
+    private void refreshOverdueTable() {
+
+        tableModel.setRowCount(
+                0
+        );
+
+
+        List<BorrowingRecord> overdueRecords =
+                overdueManager
+                        .findOverdueBooks();
+
+
+        for (BorrowingRecord record :
+                overdueRecords) {
+
+            String bookTitle =
+                    "Unknown Book";
+
+
+            try {
+
+                int bookId =
+                        Integer.parseInt(
+                                record.getBookId()
+                        );
+
+
+                Book book =
+                        borrowingManager
+                                .findBook(
+                                        bookId
+                                );
+
+
+                if (book != null) {
+
+                    bookTitle =
+                            book.getTitle();
+                }
+
+            } catch (NumberFormatException ignored) {
+            }
+
+
+            tableModel.addRow(
+                    new Object[]{
+                            record.getMemberId(),
+                            record.getBookId(),
+                            bookTitle,
+                            record.getBorrowDate(),
+                            record.getDueDate(),
+                            "OVERDUE"
+                    }
+            );
+        }
+
+
+        overdueCountLabel.setText(
+                String.valueOf(
+                        overdueRecords.size()
+                )
+        );
+
+
+        if (overdueRecords.isEmpty()) {
+
+            statusLabel.setText(
+                    "No overdue books found."
             );
 
         } else {
 
-            resultArea.append(
-                    "OVERDUE BOOKS\n\n"
+            statusLabel.setText(
+                    overdueRecords.size()
+                            + " overdue book(s) found."
             );
-
-            resultArea.append(
-                    "The following books "
-                            + "have passed their due date:\n\n"
-            );
-
-            for (String book :
-                    overdueBooks) {
-
-                resultArea.append(
-                        "• " + book + "\n\n"
-                );
-            }
         }
-    }
-
-    // ================= MAIN =================
-
-    public static void main(String[] args) {
-
-        SwingUtilities.invokeLater(() -> {
-
-            OverduePanel panel =
-                    new OverduePanel();
-
-            panel.setVisible(true);
-        });
     }
 }

@@ -1,36 +1,106 @@
 package overdue;
 
-import java.time.LocalDate;
+import library.manager.BorrowingManager;
+import library.manager.BorrowingRecord;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class OverdueManager {
 
-    public List<String> findOverdueBooks(List<String> borrowedBooks) {
+    private final BorrowingManager borrowingManager;
 
-        List<String> overdueBooks = new ArrayList<>();
+    public OverdueManager(
+            BorrowingManager borrowingManager
+    ) {
 
-        LocalDate today = LocalDate.now();
+        this.borrowingManager =
+                borrowingManager;
+    }
 
-        for (String record : borrowedBooks) {
+    // =========================
+    // FIND OVERDUE RECORDS
+    // =========================
 
-            if (record == null || record.trim().isEmpty()) {
-                continue;
-            }
+    public List<BorrowingRecord> findOverdueBooks() {
 
-            String[] details = record.split("\\|");
+        List<BorrowingRecord> overdueRecords =
+                new ArrayList<>();
 
-            if (details.length >= 3) {
+        for (BorrowingRecord record :
+                borrowingManager.getRecords()) {
 
-                String bookTitle = details[0].trim();
-                LocalDate dueDate = LocalDate.parse(details[2].trim());
+            if (record.isOverdue()) {
 
-                if (dueDate.isBefore(today)) {
-                    overdueBooks.add(bookTitle);
-                }
+                overdueRecords.add(
+                        record
+                );
             }
         }
 
-        return overdueBooks;
+        return overdueRecords;
+    }
+
+
+    // =========================
+    // OVERDUE COUNT
+    // =========================
+
+    public int getOverdueCount() {
+
+        return findOverdueBooks()
+                .size();
+    }
+
+
+    // =========================
+    // OVERDUE TEXT
+    // =========================
+
+    public String getOverdueReport() {
+
+        List<BorrowingRecord> overdueRecords =
+                findOverdueBooks();
+
+        if (overdueRecords.isEmpty()) {
+
+            return "No overdue books found.";
+        }
+
+
+        StringBuilder result =
+                new StringBuilder();
+
+
+        for (BorrowingRecord record :
+                overdueRecords) {
+
+            result.append(
+                    "Member ID: "
+                            + record.getMemberId()
+            );
+
+            result.append(
+                    " | Book ID: "
+                            + record.getBookId()
+            );
+
+            result.append(
+                    " | Borrow Date: "
+                            + record.getBorrowDate()
+            );
+
+            result.append(
+                    " | Due Date: "
+                            + record.getDueDate()
+            );
+
+            result.append(
+                    "\n"
+            );
+        }
+
+
+        return result.toString();
     }
 }

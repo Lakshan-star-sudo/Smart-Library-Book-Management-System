@@ -553,7 +553,9 @@ public class AdminPanel extends JFrame {
                 e -> {
 
                     OverduePanel overduePanel =
-                            new OverduePanel();
+                            new OverduePanel(
+                                    librarySystem.getBorrowingManager()
+                            );
 
                     overduePanel.setVisible(
                             true
@@ -624,8 +626,15 @@ public class AdminPanel extends JFrame {
 
         if (overdueLabel != null) {
 
+            overdue.OverdueManager overdueManager =
+                    new overdue.OverdueManager(
+                            librarySystem.getBorrowingManager()
+                    );
+
             overdueLabel.setText(
-                    "0"
+                    String.valueOf(
+                            overdueManager.getOverdueCount()
+                    )
             );
         }
     }

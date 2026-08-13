@@ -323,7 +323,9 @@ public class CustomerPanel extends JFrame {
         );
 
         overdueButton.addActionListener(
-                e -> new OverduePanel().setVisible(true)
+                e -> new OverduePanel(
+                        librarySystem.getBorrowingManager()
+                ).setVisible(true)
         );
 
         accountButton.addActionListener(
