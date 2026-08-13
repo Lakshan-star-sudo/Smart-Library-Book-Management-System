@@ -1,3 +1,10 @@
+package gui;
+
+import library.manager.BookManager;
+import library.manager.BorrowingManager;
+import library.manager.MemberManager;
+import library.model.Book;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -10,16 +17,19 @@ public class BorrowingGUI extends JFrame {
             new Color(244, 247, 252);
 
     private static final Color SIDEBAR =
-            new Color(24, 34, 54);
+            new Color(31, 41, 55);
 
     private static final Color PRIMARY =
-            new Color(79, 70, 229);
+            new Color(37, 99, 235);
 
     private static final Color GREEN =
             new Color(22, 163, 74);
 
     private static final Color ORANGE =
             new Color(234, 88, 12);
+
+    private static final Color PURPLE =
+            new Color(124, 58, 237);
 
     private static final Color CARD =
             Color.WHITE;
@@ -31,7 +41,7 @@ public class BorrowingGUI extends JFrame {
             new Color(107, 114, 128);
 
     private static final Color BORDER =
-            new Color(226, 232, 240);
+            new Color(229, 231, 235);
 
 
     // ================= COMPONENTS =================
@@ -42,31 +52,30 @@ public class BorrowingGUI extends JFrame {
     private JTextArea outputArea;
     private JLabel statusLabel;
 
-    private BorrowingManager manager;
+    private final BorrowingManager manager;
 
 
     // ================= CONSTRUCTOR =================
 
-    public BorrowingGUI() {
+    public BorrowingGUI(
+            BookManager bookManager,
+            MemberManager memberManager
+    ) {
 
-        manager = new BorrowingManager();
-
-        // Sample books and members
-        manager.loadSampleData();
-
-        setTitle("Library System - Borrowing Portal");
-
-        setSize(1050, 680);
-
-        setMinimumSize(
-                new Dimension(950, 620)
+        manager = new BorrowingManager(
+                bookManager,
+                memberManager
         );
+
+        setTitle("Smart Library - Borrowing Management");
 
         setDefaultCloseOperation(
-                JFrame.EXIT_ON_CLOSE
+                JFrame.DISPOSE_ON_CLOSE
         );
 
-        setLocationRelativeTo(null);
+        setExtendedState(
+                JFrame.MAXIMIZED_BOTH
+        );
 
         createGUI();
     }
@@ -136,11 +145,11 @@ public class BorrowingGUI extends JFrame {
 
 
         JLabel logo =
-                new JLabel("LIBRARY HUB");
+                new JLabel("SMART LIBRARY");
 
         logo.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.BOLD,
                         22
                 )
@@ -154,18 +163,18 @@ public class BorrowingGUI extends JFrame {
 
 
         JLabel smallTitle =
-                new JLabel("Borrowing Portal");
+                new JLabel("Borrowing Management");
 
         smallTitle.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.PLAIN,
                         13
                 )
         );
 
         smallTitle.setForeground(
-                new Color(160, 174, 192)
+                new Color(209, 213, 219)
         );
 
         smallTitle.setAlignmentX(
@@ -191,14 +200,14 @@ public class BorrowingGUI extends JFrame {
 
         menuLabel.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.BOLD,
                         11
                 )
         );
 
         menuLabel.setForeground(
-                new Color(130, 145, 170)
+                new Color(156, 163, 175)
         );
 
         menuLabel.setAlignmentX(
@@ -213,14 +222,10 @@ public class BorrowingGUI extends JFrame {
 
 
         JButton borrowMenu =
-                createSidebarButton(
-                        "Borrow Book"
-                );
+                createSidebarButton("Borrow Book");
 
         JButton returnMenu =
-                createSidebarButton(
-                        "Return Book"
-                );
+                createSidebarButton("Return Book");
 
         JButton availabilityMenu =
                 createSidebarButton(
@@ -260,9 +265,7 @@ public class BorrowingGUI extends JFrame {
 
 
         JButton exitButton =
-                createSidebarButton(
-                        "Exit"
-                );
+                createSidebarButton("Close");
 
         exitButton.setForeground(
                 new Color(248, 113, 113)
@@ -277,7 +280,7 @@ public class BorrowingGUI extends JFrame {
                     memberIdField.requestFocus();
 
                     statusLabel.setText(
-                            "Enter Member ID and Book ID to borrow a book"
+                            "Enter Member ID and Book ID to borrow a book."
                     );
                 }
         );
@@ -289,7 +292,7 @@ public class BorrowingGUI extends JFrame {
                     memberIdField.requestFocus();
 
                     statusLabel.setText(
-                            "Enter Member ID and Book ID to return a book"
+                            "Enter Member ID and Book ID to return a book."
                     );
                 }
         );
@@ -301,7 +304,7 @@ public class BorrowingGUI extends JFrame {
                     bookIdField.requestFocus();
 
                     statusLabel.setText(
-                            "Enter a Book ID to check availability"
+                            "Enter a Book ID to check availability."
                     );
                 }
         );
@@ -313,7 +316,7 @@ public class BorrowingGUI extends JFrame {
 
 
         exitButton.addActionListener(
-                e -> exitApplication()
+                e -> dispose()
         );
 
 
@@ -330,7 +333,8 @@ public class BorrowingGUI extends JFrame {
         JPanel mainPanel =
                 new JPanel(
                         new BorderLayout(
-                                0, 20
+                                0,
+                                20
                         )
                 );
 
@@ -338,7 +342,10 @@ public class BorrowingGUI extends JFrame {
 
         mainPanel.setBorder(
                 new EmptyBorder(
-                        30, 35, 25, 35
+                        30,
+                        35,
+                        25,
+                        35
                 )
         );
 
@@ -458,7 +465,7 @@ public class BorrowingGUI extends JFrame {
 
         title.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.BOLD,
                         30
                 )
@@ -474,7 +481,7 @@ public class BorrowingGUI extends JFrame {
 
         subtitle.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.PLAIN,
                         14
                 )
@@ -511,7 +518,10 @@ public class BorrowingGUI extends JFrame {
         JPanel cards =
                 new JPanel(
                         new GridLayout(
-                                1, 3, 15, 0
+                                1,
+                                3,
+                                15,
+                                0
                         )
                 );
 
@@ -557,19 +567,23 @@ public class BorrowingGUI extends JFrame {
 
         RoundedPanel panel =
                 new RoundedPanel(
-                        20,
+                        18,
                         CARD
                 );
 
         panel.setLayout(
                 new BorderLayout(
-                        15, 0
+                        15,
+                        0
                 )
         );
 
         panel.setBorder(
                 new EmptyBorder(
-                        18, 20, 18, 20
+                        18,
+                        20,
+                        18,
+                        20
                 )
         );
 
@@ -579,7 +593,8 @@ public class BorrowingGUI extends JFrame {
 
         indicator.setPreferredSize(
                 new Dimension(
-                        6, 0
+                        6,
+                        0
                 )
         );
 
@@ -604,7 +619,7 @@ public class BorrowingGUI extends JFrame {
 
         titleLabel.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.BOLD,
                         16
                 )
@@ -618,7 +633,7 @@ public class BorrowingGUI extends JFrame {
 
         descLabel.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.PLAIN,
                         12
                 )
@@ -659,19 +674,23 @@ public class BorrowingGUI extends JFrame {
 
         RoundedPanel formCard =
                 new RoundedPanel(
-                        20,
+                        18,
                         CARD
                 );
 
         formCard.setLayout(
                 new BorderLayout(
-                        0, 18
+                        0,
+                        18
                 )
         );
 
         formCard.setBorder(
                 new EmptyBorder(
-                        22, 25, 22, 25
+                        22,
+                        25,
+                        22,
+                        25
                 )
         );
 
@@ -696,7 +715,7 @@ public class BorrowingGUI extends JFrame {
 
         headingTitle.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.BOLD,
                         18
                 )
@@ -712,7 +731,7 @@ public class BorrowingGUI extends JFrame {
 
         headingDesc.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.PLAIN,
                         12
                 )
@@ -739,7 +758,10 @@ public class BorrowingGUI extends JFrame {
         JPanel inputs =
                 new JPanel(
                         new GridLayout(
-                                1, 2, 20, 0
+                                1,
+                                2,
+                                20,
+                                0
                         )
                 );
 
@@ -817,16 +839,16 @@ public class BorrowingGUI extends JFrame {
         RoundedButton recordsButton =
                 createActionButton(
                         "View Records",
-                        new Color(
-                                124, 58, 237
-                        )
+                        PURPLE
                 );
 
         RoundedButton clearButton =
                 createActionButton(
                         "Clear",
                         new Color(
-                                100, 116, 139
+                                100,
+                                116,
+                                139
                         )
                 );
 
@@ -880,7 +902,8 @@ public class BorrowingGUI extends JFrame {
         JPanel panel =
                 new JPanel(
                         new BorderLayout(
-                                0, 8
+                                0,
+                                8
                         )
                 );
 
@@ -892,7 +915,7 @@ public class BorrowingGUI extends JFrame {
 
         label.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.BOLD,
                         13
                 )
@@ -922,7 +945,7 @@ public class BorrowingGUI extends JFrame {
 
         field.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.PLAIN,
                         14
                 )
@@ -930,7 +953,8 @@ public class BorrowingGUI extends JFrame {
 
         field.setPreferredSize(
                 new Dimension(
-                        200, 42
+                        200,
+                        42
                 )
         );
 
@@ -938,18 +962,22 @@ public class BorrowingGUI extends JFrame {
 
         field.setBackground(
                 new Color(
-                        248, 250, 252
+                        248,
+                        250,
+                        252
                 )
         );
 
         field.setBorder(
                 BorderFactory.createCompoundBorder(
                         BorderFactory.createLineBorder(
-                                BORDER,
-                                1
+                                BORDER
                         ),
                         new EmptyBorder(
-                                8, 12, 8, 12
+                                8,
+                                12,
+                                8,
+                                12
                         )
                 )
         );
@@ -967,19 +995,23 @@ public class BorrowingGUI extends JFrame {
 
         RoundedPanel card =
                 new RoundedPanel(
-                        20,
+                        18,
                         CARD
                 );
 
         card.setLayout(
                 new BorderLayout(
-                        0, 12
+                        0,
+                        12
                 )
         );
 
         card.setBorder(
                 new EmptyBorder(
-                        20, 25, 20, 25
+                        20,
+                        25,
+                        20,
+                        25
                 )
         );
 
@@ -999,7 +1031,7 @@ public class BorrowingGUI extends JFrame {
 
         title.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.BOLD,
                         17
                 )
@@ -1015,7 +1047,9 @@ public class BorrowingGUI extends JFrame {
 
         live.setBackground(
                 new Color(
-                        220, 252, 231
+                        220,
+                        252,
+                        231
                 )
         );
 
@@ -1023,7 +1057,7 @@ public class BorrowingGUI extends JFrame {
 
         live.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.BOLD,
                         10
                 )
@@ -1031,7 +1065,10 @@ public class BorrowingGUI extends JFrame {
 
         live.setBorder(
                 new EmptyBorder(
-                        5, 9, 5, 9
+                        5,
+                        9,
+                        5,
+                        9
                 )
         );
 
@@ -1049,7 +1086,8 @@ public class BorrowingGUI extends JFrame {
 
         outputArea =
                 new JTextArea(
-                        8, 40
+                        8,
+                        40
                 );
 
         outputArea.setEditable(false);
@@ -1066,7 +1104,9 @@ public class BorrowingGUI extends JFrame {
 
         outputArea.setBackground(
                 new Color(
-                        248, 250, 252
+                        248,
+                        250,
+                        252
                 )
         );
 
@@ -1076,13 +1116,18 @@ public class BorrowingGUI extends JFrame {
 
         outputArea.setBorder(
                 new EmptyBorder(
-                        12, 12, 12, 12
+                        12,
+                        12,
+                        12,
+                        12
                 )
         );
 
 
         JScrollPane scrollPane =
-                new JScrollPane(outputArea);
+                new JScrollPane(
+                        outputArea
+                );
 
         scrollPane.setBorder(
                 BorderFactory.createLineBorder(
@@ -1121,7 +1166,10 @@ public class BorrowingGUI extends JFrame {
 
         panel.setBorder(
                 new EmptyBorder(
-                        8, 5, 0, 5
+                        8,
+                        5,
+                        0,
+                        5
                 )
         );
 
@@ -1133,7 +1181,7 @@ public class BorrowingGUI extends JFrame {
 
         statusLabel.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.PLAIN,
                         12
                 )
@@ -1149,7 +1197,7 @@ public class BorrowingGUI extends JFrame {
 
         moduleLabel.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.PLAIN,
                         12
                 )
@@ -1186,7 +1234,7 @@ public class BorrowingGUI extends JFrame {
 
         button.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.PLAIN,
                         14
                 )
@@ -1194,7 +1242,9 @@ public class BorrowingGUI extends JFrame {
 
         button.setForeground(
                 new Color(
-                        220, 228, 240
+                        220,
+                        228,
+                        240
                 )
         );
 
@@ -1212,6 +1262,7 @@ public class BorrowingGUI extends JFrame {
         );
 
         button.setFocusPainted(false);
+
         button.setBorderPainted(false);
 
         button.setCursor(
@@ -1242,7 +1293,8 @@ public class BorrowingGUI extends JFrame {
 
         button.setPreferredSize(
                 new Dimension(
-                        135, 40
+                        135,
+                        40
                 )
         );
 
@@ -1256,15 +1308,26 @@ public class BorrowingGUI extends JFrame {
 
     private void borrowBook() {
 
-        String memberId =
-                memberIdField
-                        .getText()
-                        .trim();
+        Integer memberId =
+                parseId(
+                        memberIdField.getText(),
+                        "Member ID"
+                );
 
-        String bookId =
-                bookIdField
-                        .getText()
-                        .trim();
+        if (memberId == null) {
+            return;
+        }
+
+
+        Integer bookId =
+                parseId(
+                        bookIdField.getText(),
+                        "Book ID"
+                );
+
+        if (bookId == null) {
+            return;
+        }
 
 
         String result =
@@ -1297,15 +1360,26 @@ public class BorrowingGUI extends JFrame {
 
     private void returnBook() {
 
-        String memberId =
-                memberIdField
-                        .getText()
-                        .trim();
+        Integer memberId =
+                parseId(
+                        memberIdField.getText(),
+                        "Member ID"
+                );
 
-        String bookId =
-                bookIdField
-                        .getText()
-                        .trim();
+        if (memberId == null) {
+            return;
+        }
+
+
+        Integer bookId =
+                parseId(
+                        bookIdField.getText(),
+                        "Book ID"
+                );
+
+        if (bookId == null) {
+            return;
+        }
 
 
         String result =
@@ -1338,22 +1412,13 @@ public class BorrowingGUI extends JFrame {
 
     private void checkAvailability() {
 
-        String bookId =
-                bookIdField
-                        .getText()
-                        .trim();
+        Integer bookId =
+                parseId(
+                        bookIdField.getText(),
+                        "Book ID"
+                );
 
-
-        if (bookId.isEmpty()) {
-
-            outputArea.setText(
-                    "Please enter a Book ID."
-            );
-
-            statusLabel.setText(
-                    "Book ID is required"
-            );
-
+        if (bookId == null) {
             return;
         }
 
@@ -1381,13 +1446,10 @@ public class BorrowingGUI extends JFrame {
         }
 
 
-        String status;
-
-        if (book.isAvailable()) {
-            status = "AVAILABLE";
-        } else {
-            status = "NOT AVAILABLE";
-        }
+        String status =
+                book.isAvailable()
+                        ? "AVAILABLE"
+                        : "BORROWED";
 
 
         outputArea.setText(
@@ -1459,24 +1521,51 @@ public class BorrowingGUI extends JFrame {
 
 
     // =====================================================
-    // EXIT
+    // ID VALIDATION
     // =====================================================
 
-    private void exitApplication() {
+    private Integer parseId(
+            String text,
+            String fieldName
+    ) {
 
-        int answer =
-                JOptionPane.showConfirmDialog(
-                        this,
-                        "Are you sure you want to exit?",
-                        "Exit",
-                        JOptionPane.YES_NO_OPTION
-                );
+        text = text.trim();
+
+        if (text.isEmpty()) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Please enter " + fieldName + ".",
+                    "Input Required",
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+            return null;
+        }
 
 
-        if (answer ==
-                JOptionPane.YES_OPTION) {
+        try {
 
-            System.exit(0);
+            int value =
+                    Integer.parseInt(text);
+
+            if (value <= 0) {
+
+                throw new NumberFormatException();
+            }
+
+            return value;
+
+        } catch (NumberFormatException e) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    fieldName + " must be a positive number.",
+                    "Invalid Input",
+                    JOptionPane.ERROR_MESSAGE
+            );
+
+            return null;
         }
     }
 
@@ -1489,7 +1578,6 @@ public class BorrowingGUI extends JFrame {
             extends JPanel {
 
         private final int radius;
-
         private final Color backgroundColor;
 
 
@@ -1567,13 +1655,11 @@ public class BorrowingGUI extends JFrame {
                     buttonColor;
 
 
-            setForeground(
-                    Color.WHITE
-            );
+            setForeground(Color.WHITE);
 
             setFont(
                     new Font(
-                            "SansSerif",
+                            "Segoe UI",
                             Font.BOLD,
                             12
                     )

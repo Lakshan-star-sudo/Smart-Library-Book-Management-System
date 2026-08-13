@@ -1,3 +1,5 @@
+package library.manager;
+
 public class BorrowingRecord {
 
     private String memberId;

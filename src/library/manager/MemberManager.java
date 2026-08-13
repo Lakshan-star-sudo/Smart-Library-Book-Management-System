@@ -2,15 +2,23 @@ package library.manager;
 
 import library.model.Member;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class MemberManager {
 
     private final List<Member> members;
+    private static final String DATA_FILE = "members.dat";
 
     public MemberManager() {
         members = new ArrayList<>();
+        loadMembers();
     }
 
     // Add Member
@@ -43,6 +51,7 @@ public class MemberManager {
         }
 
         members.add(member);
+        saveMembers();
         return true;
     }
 
@@ -93,6 +102,8 @@ public class MemberManager {
         member.setEmail(email);
         member.setPhone(phone);
 
+        saveMembers();
+
         return true;
     }
 
@@ -105,9 +116,14 @@ public class MemberManager {
             return false;
         }
 
-        return members.remove(member);
-    }
+        boolean removed = members.remove(member);
 
+        if (removed) {
+            saveMembers();
+        }
+
+        return removed;
+    }
     // Get all Members
     public List<Member> getAllMembers() {
         return new ArrayList<>(members);
@@ -133,5 +149,48 @@ public class MemberManager {
     private boolean isValidPhone(String phone) {
         return phone != null
                 && phone.matches("\\d{10}");
+    }
+
+    private void saveMembers() {
+
+        try (ObjectOutputStream output =
+                     new ObjectOutputStream(
+                             new FileOutputStream(DATA_FILE)
+                     )) {
+
+            output.writeObject(members);
+
+        } catch (IOException e) {
+
+            System.err.println(
+                    "Could not save members: "
+                            + e.getMessage()
+            );
+        }
+    }
+    @SuppressWarnings("unchecked")
+    private void loadMembers() {
+
+        try (ObjectInputStream input =
+                     new ObjectInputStream(
+                             new FileInputStream(DATA_FILE)
+                     )) {
+
+            List<Member> savedMembers =
+                    (List<Member>) input.readObject();
+
+            members.addAll(savedMembers);
+
+        } catch (java.io.FileNotFoundException e) {
+
+            // First run: members.dat does not exist yet.
+
+        } catch (IOException | ClassNotFoundException e) {
+
+            System.err.println(
+                    "Could not load members: "
+                            + e.getMessage()
+            );
+        }
     }
 }

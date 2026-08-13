@@ -1,6 +1,8 @@
 package library.model;
+import java.io.Serializable;
 
-public class Member {
+public class Member implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private int memberId;
     private String name;

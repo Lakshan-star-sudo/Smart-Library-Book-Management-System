@@ -1,56 +1,123 @@
 package gui;
 
+import library.app.LibrarySystem;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class Login extends JFrame {
 
-    private final Color BACKGROUND = new Color(245, 247, 250);
-    private final Color CARD_COLOR = Color.WHITE;
-    private final Color TEXT_COLOR = new Color(35, 45, 55);
-    private final Color SUBTEXT_COLOR = new Color(100, 110, 120);
-    private final Color BUTTON_COLOR = new Color(45, 95, 160);
+    // COLORS
+    private final Color BACKGROUND =
+            new Color(245, 247, 250);
 
+    private final Color CARD_COLOR =
+            Color.WHITE;
+
+    private final Color TEXT_COLOR =
+            new Color(35, 45, 55);
+
+    private final Color SUBTEXT_COLOR =
+            new Color(100, 110, 120);
+
+    private final Color BUTTON_COLOR =
+            new Color(79, 70, 229);
+
+    private final Color BUTTON_HOVER =
+            new Color(67, 56, 202);
+
+
+
+    // FIELDS
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JComboBox<String> roleComboBox;
 
-    public Login() {
+    private final LibrarySystem librarySystem;
+
+
+
+    // CONSTRUCTOR
+    public Login(LibrarySystem librarySystem) {
+
+        this.librarySystem = librarySystem;
 
         setTitle("Smart Library - Login");
-        setSize(500, 550);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setResizable(false);
 
-        JPanel mainPanel = new JPanel(new GridBagLayout());
-        mainPanel.setBackground(BACKGROUND);
-        mainPanel.setBorder(
-                new EmptyBorder(30, 40, 30, 40)
+        setSize(500, 550);
+
+        setDefaultCloseOperation(
+                JFrame.EXIT_ON_CLOSE
         );
 
-        JPanel cardPanel = new JPanel();
-        cardPanel.setBackground(CARD_COLOR);
+        setLocationRelativeTo(null);
+
+        setResizable(false);
+
+
+
+        // MAIN PANEL
+        JPanel mainPanel =
+                new JPanel(
+                        new GridBagLayout()
+                );
+
+        mainPanel.setBackground(
+                BACKGROUND
+        );
+
+        mainPanel.setBorder(
+                new EmptyBorder(
+                        30,
+                        40,
+                        30,
+                        40
+                )
+        );
+
+
+
+        // CARD PANEL
+        JPanel cardPanel =
+                new JPanel();
+
+        cardPanel.setBackground(
+                CARD_COLOR
+        );
+
         cardPanel.setLayout(
-                new BoxLayout(cardPanel, BoxLayout.Y_AXIS)
+                new BoxLayout(
+                        cardPanel,
+                        BoxLayout.Y_AXIS
+                )
         );
 
         cardPanel.setBorder(
                 BorderFactory.createCompoundBorder(
                         BorderFactory.createLineBorder(
-                                new Color(225, 230, 235)
+                                new Color(
+                                        225,
+                                        230,
+                                        235
+                                )
                         ),
                         new EmptyBorder(
-                                30, 35, 30, 35
+                                30,
+                                35,
+                                30,
+                                35
                         )
                 )
         );
 
-        // ===== TITLE =====
 
+
+        // TITLE
         JLabel titleLabel =
-                new JLabel("SMART LIBRARY");
+                new JLabel(
+                        "SMART LIBRARY"
+                );
 
         titleLabel.setFont(
                 new Font(
@@ -60,13 +127,19 @@ public class Login extends JFrame {
                 )
         );
 
-        titleLabel.setForeground(TEXT_COLOR);
+        titleLabel.setForeground(
+                TEXT_COLOR
+        );
+
         titleLabel.setAlignmentX(
                 Component.CENTER_ALIGNMENT
         );
 
+
         JLabel subtitleLabel =
-                new JLabel("Library Management System");
+                new JLabel(
+                        "Library Management System"
+                );
 
         subtitleLabel.setFont(
                 new Font(
@@ -76,10 +149,14 @@ public class Login extends JFrame {
                 )
         );
 
-        subtitleLabel.setForeground(SUBTEXT_COLOR);
+        subtitleLabel.setForeground(
+                SUBTEXT_COLOR
+        );
+
         subtitleLabel.setAlignmentX(
                 Component.CENTER_ALIGNMENT
         );
+
 
         cardPanel.add(titleLabel);
 
@@ -93,10 +170,13 @@ public class Login extends JFrame {
                 Box.createVerticalStrut(30)
         );
 
-        // ===== USERNAME =====
 
+
+        // USERNAME
         JLabel usernameLabel =
-                new JLabel("Username");
+                new JLabel(
+                        "Username"
+                );
 
         usernameLabel.setFont(
                 new Font(
@@ -106,9 +186,14 @@ public class Login extends JFrame {
                 )
         );
 
+        usernameLabel.setForeground(
+                TEXT_COLOR
+        );
+
         usernameLabel.setAlignmentX(
                 Component.CENTER_ALIGNMENT
         );
+
 
         cardPanel.add(usernameLabel);
 
@@ -116,7 +201,9 @@ public class Login extends JFrame {
                 Box.createVerticalStrut(6)
         );
 
-        usernameField = new JTextField();
+
+        usernameField =
+                new JTextField();
 
         usernameField.setFont(
                 new Font(
@@ -127,8 +214,19 @@ public class Login extends JFrame {
         );
 
         usernameField.setMaximumSize(
-                new Dimension(300, 38)
+                new Dimension(
+                        300,
+                        38
+                )
         );
+
+        usernameField.setPreferredSize(
+                new Dimension(
+                        300,
+                        38
+                )
+        );
+
 
         cardPanel.add(usernameField);
 
@@ -136,10 +234,13 @@ public class Login extends JFrame {
                 Box.createVerticalStrut(15)
         );
 
-        // ===== PASSWORD =====
 
+
+        // PASSWORD
         JLabel passwordLabel =
-                new JLabel("Password");
+                new JLabel(
+                        "Password"
+                );
 
         passwordLabel.setFont(
                 new Font(
@@ -149,15 +250,21 @@ public class Login extends JFrame {
                 )
         );
 
+        passwordLabel.setForeground(
+                TEXT_COLOR
+        );
+
         passwordLabel.setAlignmentX(
                 Component.CENTER_ALIGNMENT
         );
+
 
         cardPanel.add(passwordLabel);
 
         cardPanel.add(
                 Box.createVerticalStrut(6)
         );
+
 
         passwordField =
                 new JPasswordField();
@@ -171,8 +278,19 @@ public class Login extends JFrame {
         );
 
         passwordField.setMaximumSize(
-                new Dimension(300, 38)
+                new Dimension(
+                        300,
+                        38
+                )
         );
+
+        passwordField.setPreferredSize(
+                new Dimension(
+                        300,
+                        38
+                )
+        );
+
 
         cardPanel.add(passwordField);
 
@@ -180,10 +298,13 @@ public class Login extends JFrame {
                 Box.createVerticalStrut(15)
         );
 
-        // ===== ROLE =====
 
+
+        // ROLE
         JLabel roleLabel =
-                new JLabel("Login As");
+                new JLabel(
+                        "Login As"
+                );
 
         roleLabel.setFont(
                 new Font(
@@ -193,15 +314,21 @@ public class Login extends JFrame {
                 )
         );
 
+        roleLabel.setForeground(
+                TEXT_COLOR
+        );
+
         roleLabel.setAlignmentX(
                 Component.CENTER_ALIGNMENT
         );
+
 
         cardPanel.add(roleLabel);
 
         cardPanel.add(
                 Box.createVerticalStrut(6)
         );
+
 
         roleComboBox =
                 new JComboBox<>(
@@ -220,8 +347,19 @@ public class Login extends JFrame {
         );
 
         roleComboBox.setMaximumSize(
-                new Dimension(300, 38)
+                new Dimension(
+                        300,
+                        38
+                )
         );
+
+        roleComboBox.setPreferredSize(
+                new Dimension(
+                        300,
+                        38
+                )
+        );
+
 
         cardPanel.add(roleComboBox);
 
@@ -229,31 +367,70 @@ public class Login extends JFrame {
                 Box.createVerticalStrut(25)
         );
 
-        // ===== LOGIN BUTTON =====
 
+
+        // LOGIN BUTTON
         JButton loginButton =
-                new JButton("LOGIN");
+                new JButton(
+                        "LOGIN"
+                );
 
         loginButton.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.BOLD,
-                        14
+                        15
                 )
         );
 
-        loginButton.setForeground(Color.WHITE);
-        loginButton.setBackground(BUTTON_COLOR);
-
-        loginButton.setFocusPainted(false);
-
-        loginButton.setCursor(
-                new Cursor(Cursor.HAND_CURSOR)
+        loginButton.setForeground(
+                Color.WHITE
         );
 
-        loginButton.setBorder(
-                BorderFactory.createEmptyBorder(
-                        12, 40, 12, 40
+        loginButton.setBackground(
+                BUTTON_COLOR
+        );
+
+        loginButton.setFocusPainted(
+                false
+        );
+
+        loginButton.setBorderPainted(
+                false
+        );
+
+        loginButton.setContentAreaFilled(
+                true
+        );
+
+        loginButton.setOpaque(
+                true
+        );
+
+        loginButton.setCursor(
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        loginButton.setPreferredSize(
+                new Dimension(
+                        160,
+                        50
+                )
+        );
+
+        loginButton.setMinimumSize(
+                new Dimension(
+                        160,
+                        50
+                )
+        );
+
+        loginButton.setMaximumSize(
+                new Dimension(
+                        160,
+                        50
                 )
         );
 
@@ -261,11 +438,55 @@ public class Login extends JFrame {
                 Component.CENTER_ALIGNMENT
         );
 
-        cardPanel.add(loginButton);
+
+
+        // HOVER EFFECT
+        loginButton.addMouseListener(
+                new java.awt.event.MouseAdapter() {
+
+                    @Override
+                    public void mouseEntered(
+                            java.awt.event.MouseEvent e
+                    ) {
+
+                        loginButton.setBackground(
+                                BUTTON_HOVER
+                        );
+                    }
+
+
+                    @Override
+                    public void mouseExited(
+                            java.awt.event.MouseEvent e
+                    ) {
+
+                        loginButton.setBackground(
+                                BUTTON_COLOR
+                        );
+                    }
+                }
+        );
+
+
+        // LOGIN ACTION
+        loginButton.addActionListener(
+                e -> login()
+        );
+
+
+
+        cardPanel.add(
+                loginButton
+        );
+
 
         cardPanel.add(
                 Box.createVerticalStrut(20)
         );
+
+
+
+        // INFO LABEL
 
         JLabel infoLabel =
                 new JLabel(
@@ -280,38 +501,53 @@ public class Login extends JFrame {
                 )
         );
 
-        infoLabel.setForeground(SUBTEXT_COLOR);
+        infoLabel.setForeground(
+                SUBTEXT_COLOR
+        );
 
         infoLabel.setAlignmentX(
                 Component.CENTER_ALIGNMENT
         );
 
-        cardPanel.add(infoLabel);
 
-        mainPanel.add(cardPanel);
+        cardPanel.add(
+                infoLabel
+        );
+
+
+
+        mainPanel.add(
+                cardPanel
+        );
+
+
 
         add(mainPanel);
-
-        // ===== LOGIN ACTION =====
-
-        loginButton.addActionListener(
-                e -> login()
-        );
     }
 
+
+
+    // LOGIN METHOD
     private void login() {
 
         String username =
-                usernameField.getText().trim();
+                usernameField
+                        .getText()
+                        .trim();
 
         String password =
                 new String(
-                        passwordField.getPassword()
+                        passwordField
+                                .getPassword()
                 );
 
         String role =
-                (String) roleComboBox.getSelectedItem();
+                (String)
+                        roleComboBox
+                                .getSelectedItem();
 
+
+        // EMPTY VALIDATION
         if (username.isEmpty()
                 || password.isEmpty()) {
 
@@ -325,12 +561,9 @@ public class Login extends JFrame {
             return;
         }
 
-        /*
-         * Temporary login validation.
-         * Actual authentication can be connected
-         * later with the member/admin data.
-         */
 
+
+        // ADMIN LOGIN
         if (role.equals("Admin")
                 && username.equals("admin")
                 && password.equals("admin123")) {
@@ -342,10 +575,22 @@ public class Login extends JFrame {
                     JOptionPane.INFORMATION_MESSAGE
             );
 
-            new AdminPanel().setVisible(true);
+
+            AdminPanel adminPanel =
+                    new AdminPanel(
+                            librarySystem
+                    );
+
+            adminPanel.setVisible(true);
+
             dispose();
 
-        } else if (role.equals("Customer")
+            return;
+        }
+
+
+        // CUSTOMER LOGIN
+        if (role.equals("Customer")
                 && username.equals("customer")
                 && password.equals("customer123")) {
 
@@ -356,27 +601,27 @@ public class Login extends JFrame {
                     JOptionPane.INFORMATION_MESSAGE
             );
 
-            new CustomerPanel().setVisible(true);
+
+            CustomerPanel customerPanel =
+                    new CustomerPanel(
+                            librarySystem
+                    );
+
+            customerPanel.setVisible(true);
+
             dispose();
 
-        } else {
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Invalid username, password or role.",
-                    "Login Failed",
-                    JOptionPane.ERROR_MESSAGE
-            );
+            return;
         }
-    }
 
-    public static void main(String[] args) {
 
-        SwingUtilities.invokeLater(() -> {
 
-            Login login = new Login();
-
-            login.setVisible(true);
-        });
+        // INVALID LOGIN
+        JOptionPane.showMessageDialog(
+                this,
+                "Invalid username, password or role.",
+                "Login Failed",
+                JOptionPane.ERROR_MESSAGE
+        );
     }
 }

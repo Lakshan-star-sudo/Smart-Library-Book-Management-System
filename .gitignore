@@ -28,3 +28,4 @@ bin/
 *.iml
 ### Mac OS ###
 .DS_Store
+*.dat

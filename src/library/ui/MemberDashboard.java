@@ -23,11 +23,9 @@ public class MemberDashboard extends JFrame {
 
         this.memberManager = memberManager;
 
-        setTitle("Library - Member Management");
-        setSize(900, 650);
-        setLocationRelativeTo(null);
+        setTitle("Smart Library - Member Management");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         initializeUI();
         refreshMemberTable();
     }

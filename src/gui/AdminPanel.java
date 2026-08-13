@@ -1,62 +1,78 @@
 package gui;
 
+import library.app.LibrarySystem;
+import library.ui.BSTDashboard;
+import library.manager.BorrowingManager;
+import library.manager.BookManager;
+import library.manager.MemberManager;
+import library.ui.MemberDashboard;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+
+
 
 public class AdminPanel extends JFrame {
 
     private final Color BACKGROUND = new Color(245, 247, 250);
     private final Color CARD_COLOR = Color.WHITE;
-    private final Color TEXT_COLOR = new Color(35, 45, 55);
-    private final Color SUBTEXT_COLOR = new Color(100, 110, 120);
-    private final Color BUTTON_COLOR = new Color(45, 95, 160);
+    private final Color HEADER_COLOR = new Color(31, 41, 55);
+    private final Color TEXT_COLOR = new Color(31, 41, 55);
+    private final Color SUBTEXT_COLOR = new Color(107, 114, 128);
+    private final Color PRIMARY_COLOR = new Color(37, 99, 235);
+    private final Color BORDER_COLOR = new Color(229, 231, 235);
 
-    public AdminPanel() {
+    private final LibrarySystem librarySystem;
 
-        setTitle("Admin - Smart Library");
-        setSize(900, 620);
+    private JLabel totalBooksLabel;
+    private JLabel totalMembersLabel;
+    private JLabel activeBorrowingsLabel;
+    private JLabel overdueLabel;
+
+    public AdminPanel(LibrarySystem librarySystem) {
+
+        this.librarySystem = librarySystem;
+
+        setTitle("Smart Library - Admin");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setResizable(false);
 
-        JPanel mainPanel =
-                new JPanel(new BorderLayout(20, 20));
+        // Full screen / maximized window
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
 
-        mainPanel.setBackground(BACKGROUND);
+        createUI();
+    }
 
-        mainPanel.setBorder(
-                new EmptyBorder(30, 40, 25, 40)
+    private void createUI() {
+
+        getContentPane().setBackground(BACKGROUND);
+        setLayout(new BorderLayout());
+
+        // HEADER
+        JPanel headerPanel =
+                new JPanel(new BorderLayout());
+
+        headerPanel.setBackground(
+                HEADER_COLOR
         );
 
-        // ================= HEADER =================
-
-        JPanel headerPanel = new JPanel();
-
-        headerPanel.setBackground(BACKGROUND);
-
-        headerPanel.setLayout(
-                new BoxLayout(
-                        headerPanel,
-                        BoxLayout.Y_AXIS
+        headerPanel.setBorder(
+                new EmptyBorder(
+                        22, 35, 22, 35
                 )
         );
 
         JLabel titleLabel =
-                new JLabel("ADMIN PANEL");
+                new JLabel("Admin Dashboard");
+
+        titleLabel.setForeground(Color.WHITE);
 
         titleLabel.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.BOLD,
                         30
                 )
-        );
-
-        titleLabel.setForeground(TEXT_COLOR);
-
-        titleLabel.setAlignmentX(
-                Component.CENTER_ALIGNMENT
         );
 
         JLabel subtitleLabel =
@@ -64,171 +80,316 @@ public class AdminPanel extends JFrame {
                         "Manage and monitor the Smart Library"
                 );
 
+        subtitleLabel.setForeground(
+                new Color(209, 213, 219)
+        );
+
         subtitleLabel.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.PLAIN,
                         14
                 )
         );
 
-        subtitleLabel.setForeground(SUBTEXT_COLOR);
+        JPanel titlePanel =
+                new JPanel();
 
-        subtitleLabel.setAlignmentX(
-                Component.CENTER_ALIGNMENT
+        titlePanel.setLayout(
+                new BoxLayout(
+                        titlePanel,
+                        BoxLayout.Y_AXIS
+                )
         );
 
-        headerPanel.add(titleLabel);
+        titlePanel.setOpaque(false);
+
+        titlePanel.add(titleLabel);
+
+        titlePanel.add(
+                Box.createVerticalStrut(5)
+        );
+
+        titlePanel.add(subtitleLabel);
+
+        JLabel roleLabel =
+                new JLabel("ADMIN");
+
+        roleLabel.setForeground(Color.WHITE);
+
+        roleLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        14
+                )
+        );
 
         headerPanel.add(
-                Box.createVerticalStrut(6)
+                titlePanel,
+                BorderLayout.WEST
         );
 
-        headerPanel.add(subtitleLabel);
+        headerPanel.add(
+                roleLabel,
+                BorderLayout.EAST
+        );
 
-        mainPanel.add(
+        add(
                 headerPanel,
                 BorderLayout.NORTH
         );
 
-        // ================= CARDS =================
 
-        JPanel cardPanel =
-                new JPanel(
-                        new GridLayout(
-                                3, 2, 20, 20
-                        )
-                );
+        // MAIN CONTENT
+        JPanel contentPanel =
+                new JPanel();
 
-        cardPanel.setBackground(BACKGROUND);
-
-        cardPanel.setBorder(
-                new EmptyBorder(
-                        20, 20, 10, 20
+        contentPanel.setLayout(
+                new BoxLayout(
+                        contentPanel,
+                        BoxLayout.Y_AXIS
                 )
         );
 
+        contentPanel.setBackground(
+                BACKGROUND
+        );
+
+        contentPanel.setBorder(
+                new EmptyBorder(
+                        25, 40, 25, 40
+                )
+        );
+
+
+        // MANAGEMENT TITLE
+        JLabel sectionLabel =
+                new JLabel(
+                        "Library Management"
+                );
+
+        sectionLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        20
+                )
+        );
+
+        sectionLabel.setForeground(
+                TEXT_COLOR
+        );
+
+        contentPanel.add(sectionLabel);
+
+        contentPanel.add(
+                Box.createVerticalStrut(15)
+        );
+
+
+        // MANAGEMENT CARDS
+        JPanel managementPanel =
+                new JPanel(
+                        new GridLayout(
+                                2, 3, 18, 18
+                        )
+                );
+
+        managementPanel.setOpaque(false);
+
         JButton booksButton =
-                createCard(
-                        "MANAGE BOOKS",
+                createManagementCard(
+                        "Manage Books",
                         "Add, update, delete and search books"
                 );
 
         JButton membersButton =
-                createCard(
-                        "MANAGE MEMBERS",
+                createManagementCard(
+                        "Manage Members",
                         "Manage library member information"
                 );
 
         JButton borrowingButton =
-                createCard(
-                        "BORROWING RECORDS",
+                createManagementCard(
+                        "Borrowing Records",
                         "View and manage borrowing records"
                 );
 
         JButton overdueButton =
-                createCard(
-                        "OVERDUE BOOKS",
+                createManagementCard(
+                        "Overdue Books",
                         "Monitor overdue library books"
                 );
 
-        JButton waitingListButton =
-                createCard(
-                        "WAITING LIST",
+        JButton waitingButton =
+                createManagementCard(
+                        "Waiting List",
                         "Manage waiting list requests"
                 );
 
         JButton reportsButton =
-                createCard(
-                        "LIBRARY REPORTS",
+                createManagementCard(
+                        "Library Reports",
                         "View important library information"
                 );
 
-        cardPanel.add(booksButton);
-        cardPanel.add(membersButton);
-        cardPanel.add(borrowingButton);
-        cardPanel.add(overdueButton);
-        cardPanel.add(waitingListButton);
-        cardPanel.add(reportsButton);
+        managementPanel.add(booksButton);
+        managementPanel.add(membersButton);
+        managementPanel.add(borrowingButton);
+        managementPanel.add(overdueButton);
+        managementPanel.add(waitingButton);
+        managementPanel.add(reportsButton);
 
-        mainPanel.add(
-                cardPanel,
+        contentPanel.add(managementPanel);
+
+        contentPanel.add(
+                Box.createVerticalStrut(25)
+        );
+
+
+        // STATISTICS TITLE
+        JLabel statisticsTitle =
+                new JLabel("System Overview");
+
+        statisticsTitle.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        20
+                )
+        );
+
+        statisticsTitle.setForeground(
+                TEXT_COLOR
+        );
+
+        contentPanel.add(
+                statisticsTitle
+        );
+
+        contentPanel.add(
+                Box.createVerticalStrut(15)
+        );
+
+        // STATISTICS
+        JPanel statisticsPanel =
+                new JPanel(
+                        new GridLayout(
+                                1, 4, 18, 0
+                        )
+                );
+
+        statisticsPanel.setOpaque(false);
+
+        totalBooksLabel =
+                new JLabel(
+                        String.valueOf(
+                                librarySystem
+                                        .getBookBST()
+                                        .inorderTraversal()
+                                        .size()
+                        )
+                );
+
+        totalMembersLabel =
+                new JLabel(
+                        String.valueOf(
+                                librarySystem
+                                        .getMemberManager()
+                                        .getMemberCount()
+                        )
+                );
+
+        activeBorrowingsLabel =
+                new JLabel("0");
+
+        overdueLabel =
+                new JLabel("0");
+
+        statisticsPanel.add(
+                createStatCard(
+                        "Total Books",
+                        totalBooksLabel
+                )
+        );
+
+        statisticsPanel.add(
+                createStatCard(
+                        "Total Members",
+                        totalMembersLabel
+                )
+        );
+
+        statisticsPanel.add(
+                createStatCard(
+                        "Active Borrowings",
+                        activeBorrowingsLabel
+                )
+        );
+
+        statisticsPanel.add(
+                createStatCard(
+                        "Overdue Books",
+                        overdueLabel
+                )
+        );
+
+        contentPanel.add(
+                statisticsPanel
+        );
+
+        add(
+                contentPanel,
                 BorderLayout.CENTER
         );
 
-        // ================= FOOTER =================
 
-        JLabel footerLabel =
-                new JLabel(
-                        "Administrator • Smart Library Management System",
-                        SwingConstants.CENTER
-                );
-
-        footerLabel.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.PLAIN,
-                        13
-                )
-        );
-
-        footerLabel.setForeground(
-                SUBTEXT_COLOR
-        );
-
-        mainPanel.add(
-                footerLabel,
-                BorderLayout.SOUTH
-        );
-
-        add(mainPanel);
-
-        // ================= TEMPORARY ACTIONS =================
-
+        // BUTTON ACTIONS
         booksButton.addActionListener(e ->
-                showMessage(
-                        "Book Management",
-                        "Book CRUD will be connected here."
-                )
+                new BSTDashboard(
+                        librarySystem.getBookManager()
+                ).setVisible(true)
         );
 
         membersButton.addActionListener(e ->
-                showMessage(
-                        "Member Management",
-                        "Member management will be connected here."
-                )
+                new MemberDashboard(
+                        librarySystem.getMemberManager()
+                ).setVisible(true)
         );
 
-        borrowingButton.addActionListener(e ->
-                showMessage(
-                        "Borrowing Records",
-                        "Borrowing records will be connected here."
-                )
-        );
+        borrowingButton.addActionListener(e -> {
 
-        overdueButton.addActionListener(e ->
-                new OverduePanel().setVisible(true)
-        );
+            BorrowingGUI borrowingGUI =
+                    new BorrowingGUI(
+                            librarySystem.getBookManager(),
+                            librarySystem.getMemberManager()
+                    );
 
-        waitingListButton.addActionListener(e ->
+            borrowingGUI.setVisible(true);
+        });
+
+        waitingButton.addActionListener(e ->
                 new WaitingListPanel().setVisible(true)
         );
 
         reportsButton.addActionListener(e ->
                 showMessage(
                         "Library Reports",
-                        "Reports will be added later."
+                        "Library reports will be connected later."
                 )
         );
     }
 
-    // ================= CARD DESIGN =================
 
-    private JButton createCard(
+    // MANAGEMENT CARD
+    private JButton createManagementCard(
             String title,
-            String description) {
+            String description
+    ) {
 
-        JButton button = new JButton();
+        JButton button =
+                new JButton();
 
         button.setLayout(
                 new BoxLayout(
@@ -237,17 +398,8 @@ public class AdminPanel extends JFrame {
                 )
         );
 
-        button.setBackground(CARD_COLOR);
-
-        button.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                                new Color(225, 230, 235)
-                        ),
-                        new EmptyBorder(
-                                18, 18, 18, 18
-                        )
-                )
+        button.setBackground(
+                CARD_COLOR
         );
 
         button.setFocusPainted(false);
@@ -258,14 +410,25 @@ public class AdminPanel extends JFrame {
                 )
         );
 
+        button.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER_COLOR
+                        ),
+                        new EmptyBorder(
+                                22, 22, 22, 22
+                        )
+                )
+        );
+
         JLabel titleLabel =
                 new JLabel(title);
 
         titleLabel.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.BOLD,
-                        17
+                        18
                 )
         );
 
@@ -278,13 +441,17 @@ public class AdminPanel extends JFrame {
         );
 
         JLabel descriptionLabel =
-                new JLabel(description);
+                new JLabel(
+                        "<html><center>"
+                                + description
+                                + "</center></html>"
+                );
 
         descriptionLabel.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.PLAIN,
-                        12
+                        13
                 )
         );
 
@@ -307,11 +474,90 @@ public class AdminPanel extends JFrame {
         return button;
     }
 
-    // ================= MESSAGE =================
 
+    // STAT CARD
+    private JPanel createStatCard(
+            String title,
+            JLabel valueLabel
+    ) {
+
+        JPanel card =
+                new JPanel();
+
+        card.setLayout(
+                new BoxLayout(
+                        card,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        card.setBackground(
+                CARD_COLOR
+        );
+
+        card.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER_COLOR
+                        ),
+                        new EmptyBorder(
+                                18, 20, 18, 20
+                        )
+                )
+        );
+
+        JLabel titleLabel =
+                new JLabel(title);
+
+        titleLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        titleLabel.setForeground(
+                SUBTEXT_COLOR
+        );
+
+        titleLabel.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+        valueLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        28
+                )
+        );
+
+        valueLabel.setForeground(
+                TEXT_COLOR
+        );
+
+        valueLabel.setAlignmentX(
+                Component.LEFT_ALIGNMENT
+        );
+
+        card.add(titleLabel);
+
+        card.add(
+                Box.createVerticalStrut(7)
+        );
+
+        card.add(valueLabel);
+
+        return card;
+    }
+
+
+    // MESSAGE
     private void showMessage(
             String title,
-            String message) {
+            String message
+    ) {
 
         JOptionPane.showMessageDialog(
                 this,
@@ -319,18 +565,5 @@ public class AdminPanel extends JFrame {
                 title,
                 JOptionPane.INFORMATION_MESSAGE
         );
-    }
-
-    // ================= MAIN =================
-
-    public static void main(String[] args) {
-
-        SwingUtilities.invokeLater(() -> {
-
-            AdminPanel panel =
-                    new AdminPanel();
-
-            panel.setVisible(true);
-        });
     }
 }

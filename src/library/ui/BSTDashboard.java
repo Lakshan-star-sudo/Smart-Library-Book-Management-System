@@ -1,6 +1,7 @@
 package library.ui;
 
 import library.datastructure.BookBST;
+import library.manager.BookManager;
 import library.model.Book;
 
 import javax.swing.*;
@@ -13,6 +14,7 @@ import java.util.List;
 public class BSTDashboard extends JFrame {
 
     private final BookBST tree;
+    private final BookManager bookManager;
 
     private JTextField searchField;
     private JTable bookTable;
@@ -24,14 +26,14 @@ public class BSTDashboard extends JFrame {
     private JLabel heightLabel;
     private JLabel statusLabel;
 
-    public BSTDashboard(BookBST tree) {
+    public BSTDashboard(BookManager bookManager) {
 
-        this.tree = tree;
+        this.bookManager = bookManager;
+        this.tree = bookManager.getBookBST();
 
-        setTitle("Library Book Index - BST");
-        setSize(1050, 680);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+        setTitle("Library Book Management");
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         createUI();
         refreshBookTable();
@@ -126,12 +128,24 @@ public class BSTDashboard extends JFrame {
         JButton clearButton =
                 createSecondaryButton("Show All");
 
+        JButton addButton =
+                createPrimaryButton("Add Book");
+
+        JButton updateButton =
+                createSecondaryButton("Update");
+
+        JButton deleteButton =
+                createSecondaryButton("Delete");
+
         JPanel searchButtons = new JPanel(
                 new FlowLayout(FlowLayout.RIGHT, 8, 0)
         );
 
         searchButtons.setOpaque(false);
 
+        searchButtons.add(addButton);
+        searchButtons.add(updateButton);
+        searchButtons.add(deleteButton);
         searchButtons.add(searchButton);
         searchButtons.add(clearButton);
 
@@ -140,6 +154,12 @@ public class BSTDashboard extends JFrame {
         searchPanel.add(searchButtons, BorderLayout.EAST);
 
         searchButton.addActionListener(e -> searchBook());
+
+        addButton.addActionListener(e -> addBook());
+
+        updateButton.addActionListener(e -> updateBook());
+
+        deleteButton.addActionListener(e -> deleteBook());
 
         clearButton.addActionListener(e -> {
             searchField.setText("");
@@ -312,9 +332,198 @@ public class BSTDashboard extends JFrame {
     }
 
 
-    // =========================
-    // SEARCH
-    // =========================
+    private void updateBook() {
+
+        String input =
+                searchField.getText().trim();
+
+        if (input.isEmpty()) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Enter a Book ID first.",
+                    "Update Book",
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+            return;
+        }
+
+        try {
+
+            int bookId =
+                    Integer.parseInt(input);
+
+            Book book =
+                    bookManager.searchBook(bookId);
+
+            if (book == null) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Book ID " + bookId + " was not found.",
+                        "Update Book",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+
+                return;
+            }
+
+            String title =
+                    JOptionPane.showInputDialog(
+                            this,
+                            "Title:",
+                            book.getTitle()
+                    );
+
+            if (title == null) return;
+
+            String author =
+                    JOptionPane.showInputDialog(
+                            this,
+                            "Author:",
+                            book.getAuthor()
+                    );
+
+            if (author == null) return;
+
+            String category =
+                    JOptionPane.showInputDialog(
+                            this,
+                            "Category:",
+                            book.getCategory()
+                    );
+
+            if (category == null) return;
+
+            String yearText =
+                    JOptionPane.showInputDialog(
+                            this,
+                            "Published Year:",
+                            String.valueOf(
+                                    book.getPublishedYear()
+                            )
+                    );
+
+            if (yearText == null) return;
+
+            int year =
+                    Integer.parseInt(
+                            yearText.trim()
+                    );
+
+            if (bookManager.updateBook(
+                    bookId,
+                    title,
+                    author,
+                    category,
+                    year
+            )) {
+
+                refreshBookTable();
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Book updated successfully.",
+                        "Update Book",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+
+            } else {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Book could not be updated.",
+                        "Update Book",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+
+        } catch (NumberFormatException e) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Book ID and Published Year must be numbers.",
+                    "Invalid Input",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+    private void deleteBook() {
+
+        String input =
+                searchField.getText().trim();
+
+        if (input.isEmpty()) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Enter a Book ID first.",
+                    "Delete Book",
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+            return;
+        }
+
+        try {
+
+            int bookId =
+                    Integer.parseInt(input);
+
+            Book book =
+                    bookManager.searchBook(bookId);
+
+            if (book == null) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Book ID " + bookId + " was not found.",
+                        "Delete Book",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+
+                return;
+            }
+
+            int confirm =
+                    JOptionPane.showConfirmDialog(
+                            this,
+                            "Delete \"" +
+                                    book.getTitle() +
+                                    "\"?",
+                            "Delete Book",
+                            JOptionPane.YES_NO_OPTION
+                    );
+
+            if (confirm != JOptionPane.YES_OPTION) {
+                return;
+            }
+
+            if (bookManager.deleteBook(bookId)) {
+
+                searchField.setText("");
+
+                refreshBookTable();
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Book deleted successfully.",
+                        "Delete Book",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            }
+
+        } catch (NumberFormatException e) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Book ID must be a number.",
+                    "Invalid Input",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
 
     private void searchBook() {
 
@@ -383,10 +592,7 @@ public class BSTDashboard extends JFrame {
 
         tableModel.setRowCount(0);
 
-        /*
-         * Inorder traversal returns books
-         * ordered by Book ID.
-         */
+
         List<Book> books =
                 tree.inorderTraversal();
 
@@ -598,6 +804,112 @@ public class BSTDashboard extends JFrame {
         );
 
         return button;
+    }
+    private void addBook() {
+
+        try {
+            String idText = JOptionPane.showInputDialog(
+                    this,
+                    "Enter Book ID:",
+                    "Add Book",
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (idText == null) {
+                return;
+            }
+
+            int bookId = Integer.parseInt(idText.trim());
+
+            String title = JOptionPane.showInputDialog(
+                    this,
+                    "Enter Book Title:",
+                    "Add Book",
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (title == null) {
+                return;
+            }
+
+            String author = JOptionPane.showInputDialog(
+                    this,
+                    "Enter Author:",
+                    "Add Book",
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (author == null) {
+                return;
+            }
+
+            String category = JOptionPane.showInputDialog(
+                    this,
+                    "Enter Category:",
+                    "Add Book",
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (category == null) {
+                return;
+            }
+
+            String yearText = JOptionPane.showInputDialog(
+                    this,
+                    "Enter Published Year:",
+                    "Add Book",
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (yearText == null) {
+                return;
+            }
+
+            int year = Integer.parseInt(yearText.trim());
+
+            Book book = new Book(
+                    bookId,
+                    title,
+                    author,
+                    category,
+                    year,
+                    true
+            );
+
+            boolean success =
+                    bookManager.addBook(book);
+
+            if (success) {
+
+                refreshBookTable();
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Book added successfully.",
+                        "Add Book",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+
+            } else {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Book could not be added.\n"
+                                + "Check the details or use a unique Book ID.",
+                        "Add Book",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+
+        } catch (NumberFormatException ex) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Book ID and Published Year must be numbers.",
+                    "Invalid Input",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 
 
